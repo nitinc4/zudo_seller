@@ -7,6 +7,11 @@ const StatusBadge = ({ status }) => {
   const configs = {
     'Pending': { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', icon: Clock },
     'Packed': { bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', icon: CheckCircle },
+    'Picked Up': { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981', icon: Truck },
+    'Processing': { bg: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', icon: RefreshCcw },
+    'Shipped': { bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', icon: Truck },
+    'Delivered': { bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', icon: CheckCircle },
+    'Cancelled': { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', icon: XCircle },
   };
 
   const config = configs[status] || configs['Pending'];
@@ -26,8 +31,67 @@ const StatusBadge = ({ status }) => {
       border: `1px solid ${config.color}20`
     }}>
       <Icon size={12} />
-      {status.toUpperCase()}
+      {status?.toUpperCase()}
     </span>
+  );
+};
+
+const StatusSelector = ({ status, onUpdate, disabled }) => {
+  const configs = {
+    'Pending': { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' },
+    'Packed': { bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' },
+    'Picked Up': { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981' },
+    'Processing': { bg: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' },
+    'Shipped': { bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' },
+    'Delivered': { bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' },
+    'Cancelled': { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' },
+  };
+
+  const config = configs[status] || configs['Pending'];
+  const selectableStatuses = ['Pending', 'Packed'];
+
+  return (
+    <div style={{ position: 'relative', width: 'fit-content' }}>
+      <select 
+        value={status || 'Pending'} 
+        onChange={(e) => onUpdate(e.target.value)}
+        disabled={disabled}
+        style={{
+          appearance: 'none',
+          background: config.bg,
+          color: config.color,
+          border: `1px solid ${config.color}40`,
+          padding: '6px 28px 6px 12px',
+          borderRadius: '20px',
+          fontSize: '11px',
+          fontWeight: 700,
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          outline: 'none',
+          textTransform: 'uppercase',
+          transition: 'all 0.2s',
+          width: '130px'
+        }}
+      >
+        {/* Always show current status as an option */}
+        {!selectableStatuses.includes(status) && status && (
+          <option value={status} style={{ background: '#0f172a', color: 'white' }}>{status.toUpperCase()}</option>
+        )}
+        {selectableStatuses.map(s => (
+          <option key={s} value={s} style={{ background: '#0f172a', color: 'white' }}>{s.toUpperCase()}</option>
+        ))}
+      </select>
+      <div style={{ 
+        position: 'absolute', 
+        right: '10px', 
+        top: '50%', 
+        transform: 'translateY(-50%)', 
+        pointerEvents: 'none',
+        color: config.color,
+        fontSize: '10px'
+      }}>
+        ▼
+      </div>
+    </div>
   );
 };
 
@@ -284,7 +348,11 @@ const Orders = () => {
                   ₹{order.totalAmount || 0}
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <StatusBadge status={order.orderStatus || 'Pending'} />
+                  <StatusSelector 
+                    status={order.orderStatus} 
+                    onUpdate={(newStatus) => updateOrderStatus(order._id, newStatus)}
+                    disabled={updatingStatus}
+                  />
                 </td>
                 <td style={{ padding: '16px 24px' }}>
                   <button 
