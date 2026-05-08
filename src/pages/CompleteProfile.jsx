@@ -27,7 +27,8 @@ const CompleteProfile = () => {
       pickupLocation: {
         ...formData.pickupLocation,
         lat: coords.lat,
-        lng: coords.lng
+        lng: coords.lng,
+        address: coords.address || formData.pickupLocation.address
       }
     });
   };

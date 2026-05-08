@@ -4,109 +4,106 @@ import { Truck, Calendar, Clock, MapPin, Package, CheckCircle, AlertCircle, Plus
 import Layout from '../components/Layout';
 
 const PickupCard = ({ pickup, onGenerateInvoice }) => (
-  <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+  <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : '#6366f1' }}></div>
     
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
       <div>
-        <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, marginBottom: '4px', letterSpacing: '0.5px' }}>PICKUP ID</div>
-        <div style={{ fontSize: '16px', fontWeight: 800, color: '#6366f1' }}>#{pickup.pickupId}</div>
+        <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.5px' }}>PICKUP ID</div>
+        <div style={{ fontSize: '14px', fontWeight: 800, color: '#6366f1' }}>#{pickup.pickupId}</div>
       </div>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <button 
-          onClick={() => onGenerateInvoice(pickup)}
-          style={{
-            padding: '6px 12px',
-            borderRadius: '12px',
-            background: 'rgba(99, 102, 241, 0.1)',
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            color: '#6366f1',
-            fontSize: '11px',
-            fontWeight: 700,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer'
-          }}
-        >
-          <FileText size={14} />
-          Invoice
-        </button>
-        <span style={{ 
-          padding: '6px 14px', 
-          borderRadius: '20px', 
-          fontSize: '11px', 
-          fontWeight: 800,
-          background: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? 'rgba(34, 197, 94, 0.1)' : 
-                     pickup.status === 'Pending' ? 'rgba(245, 158, 11, 0.1)' : 
-                     'rgba(99, 102, 241, 0.1)',
-          color: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : 
-                 pickup.status === 'Pending' ? '#f59e0b' : 
-                 '#6366f1',
-          border: `1px solid ${(pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : pickup.status === 'Pending' ? '#f59e0b' : '#6366f1'}20`
-        }}>
-          {pickup.status.toUpperCase()}
-        </span>
-      </div>
+      <span style={{ 
+        padding: '4px 10px', 
+        borderRadius: '12px', 
+        fontSize: '10px', 
+        fontWeight: 800,
+        background: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? 'rgba(34, 197, 94, 0.1)' : 
+                   pickup.status === 'Pending' ? 'rgba(245, 158, 11, 0.1)' : 
+                   'rgba(99, 102, 241, 0.1)',
+        color: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : 
+               pickup.status === 'Pending' ? '#f59e0b' : 
+               '#6366f1',
+        border: `1px solid ${(pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : pickup.status === 'Pending' ? '#f59e0b' : '#6366f1'}20`
+      }}>
+        {pickup.status.toUpperCase()}
+      </span>
     </div>
 
-    {/* Verification Code Section */}
+    {/* Verification Code Section - Smaller */}
     <div style={{ 
-      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1))', 
-      borderRadius: '20px', 
-      padding: '20px', 
+      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05))', 
+      borderRadius: '16px', 
+      padding: '12px', 
       textAlign: 'center',
-      marginBottom: '24px',
-      border: '1px solid rgba(255,255,255,0.05)'
+      marginBottom: '16px',
+      border: '1px solid rgba(255,255,255,0.03)'
     }}>
-      <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, marginBottom: '8px' }}>VERIFICATION CODE</div>
-      <div style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '8px', color: 'white', fontFamily: 'monospace' }}>
+      <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600 }}>VERIFICATION CODE</div>
+      <div style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '4px', color: 'white', fontFamily: 'monospace' }}>
         {pickup.pickupCode}
       </div>
-      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '8px' }}>Share this code with the driver</div>
     </div>
 
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Driver Info */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Truck size={20} color="#6366f1" />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+      {/* Customer Info - Compact */}
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(236, 72, 153, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <User size={16} color="#ec4899" />
         </div>
-        <div>
-          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>DRIVER</div>
-          <div style={{ fontSize: '14px', fontWeight: 700 }}>{pickup.driver?.name || 'Assigning...'}</div>
-          {pickup.driver?.phone && <div style={{ fontSize: '12px', color: '#64748b' }}>{pickup.driver.phone}</div>}
-        </div>
-      </div>
-
-      {/* Customer Info */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(236, 72, 153, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <User size={20} color="#ec4899" />
-        </div>
-        <div>
-          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>CUSTOMER</div>
-          <div style={{ fontSize: '14px', fontWeight: 700 }}>{pickup.customer?.name || 'Guest Customer'}</div>
-          <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{pickup.address}</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickup.customer?.name || 'Guest Customer'}</div>
+          <div style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickup.address}</div>
         </div>
       </div>
 
-      {/* Order Summary */}
-      <div style={{ 
-        padding: '16px', 
-        background: 'rgba(255,255,255,0.02)', 
-        borderRadius: '16px', 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        border: '1px solid rgba(255,255,255,0.03)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Package size={18} color="#6366f1" />
-          <span style={{ fontSize: '14px', fontWeight: 700 }}>{pickup.itemCount} Items</span>
+      {/* Driver Info - Compact */}
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Truck size={16} color="#6366f1" />
         </div>
-        <div style={{ fontSize: '16px', fontWeight: 800, color: '#22c55e' }}>₹{pickup.totalAmount}</div>
+        <div>
+          <div style={{ fontSize: '12px', fontWeight: 700 }}>{pickup.driver?.name || 'Assigning...'}</div>
+        </div>
       </div>
+    </div>
+
+    {/* Items Details - New Section */}
+    <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', marginBottom: '16px' }}>
+      <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700, marginBottom: '8px' }}>ITEMS DETAILS</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {pickup.items?.slice(0, 3).map((item, idx) => (
+          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+            <span style={{ color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>{item.name}</span>
+            <span style={{ color: '#94a3b8' }}>x{item.quantity}</span>
+          </div>
+        ))}
+        {pickup.items?.length > 3 && (
+          <div style={{ fontSize: '10px', color: '#6366f1', fontWeight: 600 }}>+{pickup.items.length - 3} more items</div>
+        )}
+      </div>
+    </div>
+
+    {/* Footer - Compact */}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <button 
+        onClick={() => onGenerateInvoice(pickup)}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#6366f1',
+          fontSize: '11px',
+          fontWeight: 700,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          padding: 0,
+          cursor: 'pointer'
+        }}
+      >
+        <FileText size={14} />
+        Invoice
+      </button>
+      <div style={{ fontSize: '14px', fontWeight: 800, color: '#22c55e' }}>₹{pickup.totalAmount}</div>
     </div>
   </div>
 );
@@ -115,6 +112,8 @@ const Pickups = () => {
   const [pickups, setPickups] = useState([]);
   const [seller, setSeller] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('All');
 
   useEffect(() => {
     const initData = async () => {
@@ -267,27 +266,62 @@ const Pickups = () => {
           <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Pickups</h1>
           <p style={{ color: '#94a3b8' }}>Schedule and track order pickups from your store.</p>
         </div>
-        <button className="btn-primary" style={{ padding: '12px 24px' }}>
-          <Plus size={20} />
-          <span>Schedule New Pickup</span>
-        </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '40px' }}>
-        <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', textAlign: 'center', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-          <Truck size={32} color="#6366f1" style={{ marginBottom: '12px' }} />
-          <div style={{ fontSize: '12px', color: '#94a3b8' }}>Scheduled Today</div>
-          <div style={{ fontSize: '24px', fontWeight: 800 }}>{pickups.filter(p => new Date(p.scheduledDate).toDateString() === new Date().toDateString()).length}</div>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ position: 'relative', flex: 1 }}>
+          <input 
+            type="text" 
+            placeholder="Search by customer, items or price..." 
+            className="input-field"
+            style={{ width: '100%', paddingLeft: '48px' }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}>
+            <Package size={20} />
+          </div>
         </div>
-        <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', textAlign: 'center' }}>
-          <AlertCircle size={32} color="#f59e0b" style={{ marginBottom: '12px' }} />
-          <div style={{ fontSize: '12px', color: '#94a3b8' }}>Pending Confirmation</div>
-          <div style={{ fontSize: '24px', fontWeight: 800 }}>{pickups.filter(p => p.status === 'Pending').length}</div>
+
+        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          {['All', 'Pending / Packed', 'Completed'].map(type => (
+            <button
+              key={type}
+              onClick={() => setFilterType(type)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                background: filterType === type ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                color: filterType === type ? '#6366f1' : '#64748b',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {type}
+            </button>
+          ))}
         </div>
-        <div className="glass-card" style={{ padding: '24px', borderRadius: '24px', textAlign: 'center' }}>
-          <CheckCircle size={32} color="#22c55e" style={{ marginBottom: '12px' }} />
-          <div style={{ fontSize: '12px', color: '#94a3b8' }}>Completed This Week</div>
-          <div style={{ fontSize: '24px', fontWeight: 800 }}>{pickups.filter(p => p.status === 'Picked Up' || p.status === 'Shipped').length}</div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+          <Truck size={24} color="#6366f1" style={{ marginBottom: '8px' }} />
+          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Scheduled Today</div>
+          <div style={{ fontSize: '20px', fontWeight: 800 }}>{pickups.filter(p => new Date(p.scheduledDate).toDateString() === new Date().toDateString()).length}</div>
+        </div>
+        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center' }}>
+          <AlertCircle size={24} color="#f59e0b" style={{ marginBottom: '8px' }} />
+          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Pending / Packed</div>
+          <div style={{ fontSize: '20px', fontWeight: 800 }}>{pickups.filter(p => ['Pending', 'Packed'].includes(p.status)).length}</div>
+        </div>
+        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center' }}>
+          <CheckCircle size={24} color="#22c55e" style={{ marginBottom: '8px' }} />
+          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Completed Pickups</div>
+          <div style={{ fontSize: '20px', fontWeight: 800 }}>{pickups.filter(p => !['Pending', 'Packed'].includes(p.status)).length}</div>
         </div>
       </div>
 
@@ -309,8 +343,29 @@ const Pickups = () => {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-          {pickups.map(pickup => <PickupCard key={pickup._id} pickup={pickup} onGenerateInvoice={generateInvoice} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+          {pickups
+            .filter(p => {
+              // 1. Filter by Type
+              if (filterType === 'Pending / Packed') {
+                if (!['Pending', 'Packed'].includes(p.status)) return false;
+              } else if (filterType === 'Completed') {
+                if (['Pending', 'Packed'].includes(p.status)) return false;
+              }
+
+              // 2. Filter by Search Term
+              const customerName = (p.customer?.name || '').toLowerCase();
+              const itemNames = (p.items || []).map(i => (i.name || '').toLowerCase()).join(' ');
+              const price = (p.totalAmount || '').toString();
+              const search = searchTerm.toLowerCase();
+              
+              return customerName.includes(search) || 
+                     itemNames.includes(search) || 
+                     price.includes(search) ||
+                     (p.pickupId || '').toLowerCase().includes(search);
+            })
+            .map(pickup => <PickupCard key={pickup._id} pickup={pickup} onGenerateInvoice={generateInvoice} />)
+          }
         </div>
       )}
     </Layout>

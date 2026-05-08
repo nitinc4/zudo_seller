@@ -79,7 +79,7 @@ const Sidebar = () => {
         <SidebarItem to="/products" icon={Package} label="Products" />
         <SidebarItem to="/orders" icon={ShoppingBag} label="Orders" />
         <SidebarItem to="/pickups" icon={Truck} label="Pickups" />
-        <SidebarItem to="/settings" icon={Settings} label="Settings" />
+        <SidebarItem to="/Profile settings" icon={Settings} label="Settings" />
       </nav>
 
       <button 

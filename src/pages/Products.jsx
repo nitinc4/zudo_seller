@@ -1,8 +1,152 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { IMAGE_BASE_URL, getImageUrl } from '../utils/api';
-import { Package, Plus, Search, Filter, MoreVertical, Edit2, Trash2, ExternalLink } from 'lucide-react';
+import { Package, Plus, Search, Filter, MoreVertical, Edit2, Trash2, Eye, X } from 'lucide-react';
 import Layout from '../components/Layout';
+
+const ProductDetailModal = ({ product, onClose }) => {
+  if (!product) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div className="glass-card" style={{
+        maxWidth: '800px',
+        width: '100%',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        borderRadius: '32px',
+        padding: '32px',
+        position: 'relative',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <button 
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            right: '24px',
+            top: '24px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: 'none',
+            color: '#94a3b8',
+            padding: '8px',
+            borderRadius: '12px',
+            cursor: 'pointer'
+          }}
+        >
+          <X size={20} />
+        </button>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+          <div>
+            <div style={{ 
+              width: '100%', 
+              aspectRatio: '1', 
+              borderRadius: '24px', 
+              overflow: 'hidden',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.05)'
+            }}>
+              <img 
+                src={getImageUrl(product.imageUrl)} 
+                alt={product.name}
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ 
+                  background: 'rgba(99, 102, 241, 0.1)', 
+                  color: '#6366f1', 
+                  padding: '6px 14px', 
+                  borderRadius: '10px', 
+                  fontSize: '11px', 
+                  fontWeight: 700,
+                  letterSpacing: '0.5px'
+                }}>
+                  {product.categoryId?.name || 'Category'}
+                </div>
+                <div style={{ color: '#64748b' }}>/</div>
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)', 
+                  color: '#94a3b8', 
+                  padding: '6px 14px', 
+                  borderRadius: '10px', 
+                  fontSize: '11px', 
+                  fontWeight: 700,
+                  letterSpacing: '0.5px'
+                }}>
+                  {product.subCategoryId?.name || 'Sub-Category'}
+                </div>
+              </div>
+              <h2 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '6px', color: 'white', letterSpacing: '-0.5px' }}>{product.name}</h2>
+              <div style={{ color: '#64748b', fontSize: '13px', fontWeight: 500 }}>PRODUCT SKU: <span style={{ color: '#94a3b8' }}>{product.sku || 'N/A'}</span></div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>RETAIL PRICE</div>
+                <div style={{ fontSize: '28px', fontWeight: 900, color: '#22c55e' }}>₹{product.price}</div>
+              </div>
+              <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>AVAILABLE STOCK</div>
+                <div style={{ fontSize: '22px', fontWeight: 800, color: product.stock < 10 ? '#ef4444' : 'white' }}>
+                  {product.stock} <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 600 }}>UNITS</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '12px', letterSpacing: '0.5px' }}>DESCRIPTION</div>
+              <div style={{ 
+                padding: '20px', 
+                background: 'rgba(255,255,255,0.01)', 
+                borderRadius: '20px', 
+                border: '1px solid rgba(255,255,255,0.03)',
+                fontSize: '14px', 
+                color: '#94a3b8', 
+                lineHeight: '1.7',
+                maxHeight: '180px',
+                overflowY: 'auto'
+              }}>
+                {product.description || 'No detailed description available for this product.'}
+              </div>
+            </div>
+
+            {product.specifications && Object.keys(product.specifications).length > 0 && (
+              <div>
+                <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, marginBottom: '12px' }}>SPECIFICATIONS</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  {Object.entries(product.specifications).map(([key, value]) => (
+                    <div key={key} style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{key}</div>
+                      <div style={{ fontSize: '13px', fontWeight: 600 }}>{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -11,6 +155,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
   const [selectedSubCat, setSelectedSubCat] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -166,7 +311,6 @@ const Products = () => {
               <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>CATEGORY</th>
               <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>PRICE</th>
               <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>STOCK</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>STATUS</th>
               <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>ACTIONS</th>
             </tr>
           </thead>
@@ -212,28 +356,24 @@ const Products = () => {
                   </span>
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <span style={{ 
-                    padding: '4px 12px', 
-                    borderRadius: '20px', 
-                    fontSize: '11px', 
-                    fontWeight: 700,
-                    background: product.isActive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                    color: product.isActive ? '#22c55e' : '#ef4444',
-                    border: `1px solid ${product.isActive ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
-                  }}>
-                    {product.isActive ? 'ACTIVE' : 'INACTIVE'}
-                  </span>
-                </td>
-                <td style={{ padding: '16px 24px' }}>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
+                      onClick={() => setSelectedProduct(product)}
+                      title="View Details"
+                      style={{ padding: '8px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.05)', border: 'none', color: '#6366f1', cursor: 'pointer' }}
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button 
                       onClick={() => navigate(`/products/edit/${product._id}`)}
+                      title="Edit Product"
                       style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
                     >
                       <Edit2 size={16} />
                     </button>
                     <button 
                       onClick={() => handleDelete(product._id)}
+                      title="Delete Product"
                       style={{ padding: '8px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.05)', border: 'none', color: '#ef4444', cursor: 'pointer' }}
                     >
                       <Trash2 size={16} />
@@ -245,6 +385,11 @@ const Products = () => {
           </tbody>
         </table>
       </div>
+
+      <ProductDetailModal 
+        product={selectedProduct} 
+        onClose={() => setSelectedProduct(null)} 
+      />
     </Layout>
   );
 };

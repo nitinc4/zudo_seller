@@ -96,7 +96,7 @@ const Dashboard = () => {
     <Layout>
       <header style={{ marginBottom: '40px' }}>
         <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>
-          Welcome back, <span className="gradient-text">{seller?.name?.split(' ')[0]}</span> 👋
+          Welcome back, <span className="gradient-text">{seller?.name?.split(' ')[0]}</span> 
         </h1>
         <p style={{ color: '#94a3b8' }}>Here's what's happening with your store today.</p>
       </header>
