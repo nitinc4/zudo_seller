@@ -49,7 +49,21 @@ const ProductDetailModal = ({ product, onClose }) => {
           <X size={20} />
         </button>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '32px' 
+        }} className="modal-grid">
+          <style>
+            {`
+              @media (max-width: 768px) {
+                .modal-grid {
+                  grid-template-columns: 1fr !important;
+                  gap: 20px !important;
+                }
+              }
+            `}
+          </style>
           <div>
             <div style={{ 
               width: '100%', 
@@ -69,7 +83,7 @@ const ProductDetailModal = ({ product, onClose }) => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
                 <div style={{ 
                   background: 'rgba(99, 102, 241, 0.1)', 
                   color: '#6366f1', 
@@ -81,7 +95,7 @@ const ProductDetailModal = ({ product, onClose }) => {
                 }}>
                   {product.categoryId?.name || 'Category'}
                 </div>
-                <div style={{ color: '#64748b' }}>/</div>
+                <div style={{ color: '#64748b' }} className="desktop-only">/</div>
                 <div style={{ 
                   background: 'rgba(255, 255, 255, 0.05)', 
                   color: '#94a3b8', 
@@ -98,7 +112,7 @@ const ProductDetailModal = ({ product, onClose }) => {
               <div style={{ color: '#64748b', fontSize: '13px', fontWeight: 500 }}>PRODUCT SKU: <span style={{ color: '#94a3b8' }}>{product.sku || 'N/A'}</span></div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '20px' }}>
               <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>RETAIL PRICE</div>
                 <div style={{ fontSize: '28px', fontWeight: 900, color: '#22c55e' }}>₹{product.price}</div>
@@ -131,7 +145,7 @@ const ProductDetailModal = ({ product, onClose }) => {
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div>
                 <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, marginBottom: '12px' }}>SPECIFICATIONS</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
                   {Object.entries(product.specifications).map(([key, value]) => (
                     <div key={key} style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{key}</div>
@@ -211,7 +225,14 @@ const Products = () => {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '32px',
+        flexWrap: 'wrap',
+        gap: '20px'
+      }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Products</h1>
           <p style={{ color: '#94a3b8' }}>Manage your product inventory and pricing.</p>
@@ -219,7 +240,7 @@ const Products = () => {
         <button 
           onClick={() => navigate('/products/add')}
           className="btn-primary" 
-          style={{ padding: '12px 24px' }}
+          style={{ padding: '12px 24px', width: 'auto' }}
         >
           <Plus size={20} />
           <span>Add New Product</span>
@@ -295,7 +316,8 @@ const Products = () => {
               borderRadius: '12px',
               fontSize: '13px',
               fontWeight: 600,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              flex: 'none'
             }}
           >
             Reset Filters
@@ -303,7 +325,8 @@ const Products = () => {
         </div>
       </div>
 
-      <div className="glass-card" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+      {/* Desktop Table */}
+      <div className="glass-card desktop-only" style={{ borderRadius: '24px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255, 255, 255, 0.02)' }}>
@@ -384,6 +407,41 @@ const Products = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <div className="animate-spin" style={{ display: 'inline-block' }}><Package size={24} /></div>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+            No products found.
+          </div>
+        ) : filteredProducts.map((product) => (
+          <div key={product._id} className="glass-card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', gap: '16px' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden', flexShrink: 0 }}>
+              <img 
+                src={getImageUrl(product.imageUrl)} 
+                alt="" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '4px' }}>{product.name}</div>
+              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>{product.categoryId?.name}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ fontWeight: 700, color: '#22c55e' }}>₹{product.price}</div>
+                <div style={{ fontSize: '12px', color: product.stock < 10 ? '#ef4444' : '#94a3b8' }}>{product.stock} left</div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                <button onClick={() => setSelectedProduct(product)} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: '#6366f1', fontSize: '12px', fontWeight: 600 }}>View</button>
+                <button onClick={() => navigate(`/products/edit/${product._id}`)} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Edit</button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       <ProductDetailModal 

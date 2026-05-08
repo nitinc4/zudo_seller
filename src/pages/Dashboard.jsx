@@ -101,7 +101,12 @@ const Dashboard = () => {
         <p style={{ color: '#94a3b8' }}>Here's what's happening with your store today.</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '40px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: '24px', 
+        marginBottom: '40px' 
+      }}>
         <StatCard 
           icon={Package} 
           label="Total Products" 
@@ -124,11 +129,15 @@ const Dashboard = () => {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '32px' 
+      }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           <div className="glass-card" style={{ padding: '32px', borderRadius: '32px' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '24px' }}>Store Overview</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px' }}>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ padding: '10px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', borderRadius: '12px', height: 'fit-content' }}><Store size={20} /></div>
                 <div>

@@ -157,7 +157,11 @@ const EditProduct = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '32px' }}>
+        <form onSubmit={handleSubmit} style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '32px' 
+        }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             
             {/* General Information Card */}
@@ -205,7 +209,7 @@ const EditProduct = () => {
                 <h2 style={{ fontSize: '20px', fontWeight: 700 }}>Pricing & Inventory</h2>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Regular Price (₹)</label>
                   <div style={{ position: 'relative' }}>
@@ -401,7 +405,8 @@ const EditProduct = () => {
           border: '1px solid rgba(255,255,255,0.05)',
           display: 'flex',
           justifyContent: 'flex-end',
-          gap: '16px'
+          gap: '16px',
+          flexWrap: 'wrap'
         }}>
           <button 
             onClick={() => navigate('/products')}
@@ -412,7 +417,9 @@ const EditProduct = () => {
               border: '1px solid rgba(255,255,255,0.1)', 
               color: '#94a3b8',
               fontWeight: 600,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              flex: '1',
+              minWidth: '120px'
             }}
           >
             Cancel
@@ -420,7 +427,7 @@ const EditProduct = () => {
           <button 
             onClick={handleSubmit}
             className="btn-primary" 
-            style={{ padding: '12px 48px', borderRadius: '15px' }}
+            style={{ padding: '12px 48px', borderRadius: '15px', flex: '2', minWidth: '200px' }}
             disabled={loading}
           >
             {loading ? (

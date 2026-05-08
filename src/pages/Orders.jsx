@@ -132,8 +132,19 @@ const Orders = () => {
         boxShadow: '-20px 0 50px rgba(0,0,0,0.5)',
         zIndex: 1000,
         padding: '32px',
-        overflowY: 'auto'
-      }}>
+        overflowY: 'auto',
+        transition: 'transform 0.3s ease-in-out',
+      }} className="order-detail-panel">
+        <style>
+          {`
+            @media (max-width: 600px) {
+              .order-detail-panel {
+                width: 100% !important;
+                padding: 24px !important;
+              }
+            }
+          `}
+        </style>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 800 }}>Order Details</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
@@ -259,7 +270,14 @@ const Orders = () => {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '32px',
+        flexWrap: 'wrap',
+        gap: '20px'
+      }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Orders</h1>
           <p style={{ color: '#94a3b8' }}>Monitor and manage your customer orders.</p>
@@ -279,7 +297,7 @@ const Orders = () => {
           />
         </div>
         
-        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', overflowX: 'auto' }} className="hide-scrollbar">
           {['All', 'Pending', 'Packed'].map(s => (
             <button 
               key={s}
@@ -293,7 +311,8 @@ const Orders = () => {
                 fontSize: '13px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
               }}
             >
               {s}
@@ -302,7 +321,8 @@ const Orders = () => {
         </div>
       </div>
 
-      <div className="glass-card" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+      {/* Desktop Table */}
+      <div className="glass-card desktop-only" style={{ borderRadius: '24px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255, 255, 255, 0.02)' }}>
@@ -366,6 +386,39 @@ const Orders = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <div className="animate-spin" style={{ display: 'inline-block' }}><ShoppingBag size={24} /></div>
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+            No orders found yet.
+          </div>
+        ) : filteredOrders.map((order) => (
+          <div 
+            key={order._id} 
+            className="glass-card" 
+            style={{ padding: '16px', borderRadius: '20px' }}
+            onClick={() => setSelectedOrder(order)}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ fontWeight: 700, color: '#6366f1' }}>#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
+              <StatusBadge status={order.orderStatus} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '15px' }}>{order.userId?.name || 'Guest'}</div>
+                <div style={{ fontSize: '12px', color: '#64748b' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
+              </div>
+              <div style={{ fontWeight: 700, fontSize: '16px' }}>₹{order.totalAmount}</div>
+            </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8' }}>{order.items?.length} items</div>
+          </div>
+        ))}
       </div>
 
       {selectedOrder && (

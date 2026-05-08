@@ -268,8 +268,8 @@ const Pickups = () => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
-        <div style={{ position: 'relative', flex: 1 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
           <input 
             type="text" 
             placeholder="Search by customer, items or price..." 
@@ -283,7 +283,7 @@ const Pickups = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', overflowX: 'auto' }} className="hide-scrollbar">
           {['All', 'Pending / Packed', 'Completed'].map(type => (
             <button
               key={type}
@@ -307,7 +307,12 @@ const Pickups = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+        gap: '16px', 
+        marginBottom: '32px' 
+      }}>
         <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
           <Truck size={24} color="#6366f1" style={{ marginBottom: '8px' }} />
           <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Scheduled Today</div>
@@ -343,7 +348,11 @@ const Pickups = () => {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: '20px' 
+        }}>
           {pickups
             .filter(p => {
               // 1. Filter by Type

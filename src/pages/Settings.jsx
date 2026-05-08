@@ -101,7 +101,14 @@ const Settings = () => {
   return (
     <Layout>
       <div style={{ maxWidth: '1000px' }}>
-        <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <header style={{ 
+          marginBottom: '40px', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          gap: '20px'
+        }}>
           <div>
             <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Store Settings</h1>
             <p style={{ color: '#94a3b8' }}>View and manage your professional profile.</p>
@@ -110,7 +117,7 @@ const Settings = () => {
             <button 
               onClick={() => setIsEditing(true)}
               className="btn-primary" 
-              style={{ padding: '12px 24px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid #6366f1', color: '#6366f1' }}
+              style={{ padding: '12px 24px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid #6366f1', color: '#6366f1', width: 'auto' }}
             >
               <Edit3 size={18} />
               <span>Edit Profile</span>
@@ -123,7 +130,7 @@ const Settings = () => {
                   setFormData(profile);
                 }}
                 className="btn-primary" 
-                style={{ padding: '12px 24px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444' }}
+                style={{ padding: '12px 24px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444', width: 'auto' }}
               >
                 <X size={18} />
                 <span>Cancel</span>
@@ -147,7 +154,7 @@ const Settings = () => {
             </h2>
             
             {isEditing ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Full Name</label>
                   <input type="text" className="input-field" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
@@ -162,7 +169,7 @@ const Settings = () => {
                 </div>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'x 40px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 40px' }}>
                 <InfoRow label="Full Name" value={profile.name} icon={User} />
                 <InfoRow label="Store Name" value={profile.storeName} icon={Store} color="#8b5cf6" />
                 <InfoRow label="Phone Number" value={profile.phone} icon={Phone} color="#ec4899" />
@@ -186,7 +193,7 @@ const Settings = () => {
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Pickup Location (Map)</label>
-                  <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', height: '300px' }}>
                     <MapPicker apiKey={MAPS_API_KEY} onLocationSelect={handleLocationSelect} initialLocation={formData.pickupLocation} />
                   </div>
                   <input type="text" className="input-field" value={formData.pickupLocation.address} onChange={e => setFormData({...formData, pickupLocation: { ...formData.pickupLocation, address: e.target.value }})} required placeholder="Specific address..." />
@@ -201,7 +208,7 @@ const Settings = () => {
           </div>
 
           {isEditing && (
-            <button type="submit" className="btn-primary" style={{ padding: '16px 40px', alignSelf: 'flex-start' }} disabled={saving}>
+            <button type="submit" className="btn-primary" style={{ padding: '16px 40px', alignSelf: 'flex-start', width: '100%' }} disabled={saving}>
               {saving ? <Loader2 className="animate-spin" /> : (
                 <>
                   <Save size={20} />
