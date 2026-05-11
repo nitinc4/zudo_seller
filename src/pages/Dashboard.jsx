@@ -21,8 +21,8 @@ const StatCard = ({ icon: Icon, label, value, color, onClick }) => (
       <Icon size={24} />
     </div>
     <div>
-      <div style={{ fontSize: '12px', color: '#94a3b8' }}>{label}</div>
-      <div style={{ fontSize: '24px', fontWeight: 700 }}>{value}</div>
+      <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{label}</div>
+      <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-main)' }}>{value}</div>
     </div>
   </div>
 );
@@ -33,11 +33,11 @@ const ActionButton = ({ icon: Icon, label, onClick, color }) => (
     style={{ 
       width: '100%', 
       justifyContent: 'space-between',
-      background: 'rgba(255, 255, 255, 0.03)',
-      border: '1px solid rgba(255, 255, 255, 0.05)',
+      background: 'var(--card-bg)',
+      border: '1px solid var(--border-color)',
       padding: '16px 20px',
       borderRadius: '16px',
-      color: 'white',
+      color: 'var(--text-main)',
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
@@ -95,10 +95,10 @@ const Dashboard = () => {
   return (
     <Layout>
       <header style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>
           Welcome back, <span className="gradient-text">{seller?.name?.split(' ')[0]}</span> 
         </h1>
-        <p style={{ color: '#94a3b8' }}>Here's what's happening with your store today.</p>
+        <p style={{ color: 'var(--text-dim)' }}>Here's what's happening with your store today.</p>
       </header>
 
       <div style={{ 
@@ -141,29 +141,29 @@ const Dashboard = () => {
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ padding: '10px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', borderRadius: '12px', height: 'fit-content' }}><Store size={20} /></div>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Store Name</div>
-                  <div style={{ fontSize: '16px', fontWeight: 600 }}>{seller?.storeName || seller?.businessName}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Store Name</div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)' }}>{seller?.storeName || seller?.businessName}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ padding: '10px', background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899', borderRadius: '12px', height: 'fit-content' }}><Phone size={20} /></div>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Phone</div>
-                  <div style={{ fontSize: '16px', fontWeight: 600 }}>{seller?.phone}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Phone</div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)' }}>{seller?.phone}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ padding: '10px', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', borderRadius: '12px', height: 'fit-content' }}><Building2 size={20} /></div>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Billing Address</div>
-                  <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: 1.4 }}>{seller?.billingAddress || seller?.businessAddress}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Billing Address</div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: 1.4, color: 'var(--text-main)' }}>{seller?.billingAddress || seller?.businessAddress}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ padding: '10px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '12px', height: 'fit-content' }}><MapPin size={20} /></div>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Pickup Point</div>
-                  <div style={{ fontSize: '16px', fontWeight: 600 }}>{seller?.pickupLocation?.address || 'Set your location'}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Pickup Point</div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)' }}>{seller?.pickupLocation?.address || 'Set your location'}</div>
                 </div>
               </div>
             </div>

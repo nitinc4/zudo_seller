@@ -11,6 +11,8 @@ import Orders from './pages/Orders';
 import Pickups from './pages/Pickups';
 import Settings from './pages/Settings';
 
+import { ThemeProvider } from './utils/ThemeContext';
+
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('zudo_seller_token');
   return token ? children : <Navigate to="/login" />;
@@ -18,7 +20,8 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <Router>
+    <ThemeProvider>
+      <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route 
@@ -95,6 +98,7 @@ function App() {
         />
       </Routes>
     </Router>
+    </ThemeProvider>
   );
 }
 

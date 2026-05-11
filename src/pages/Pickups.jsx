@@ -9,8 +9,8 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
     
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
       <div>
-        <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.5px' }}>PICKUP ID</div>
-        <div style={{ fontSize: '14px', fontWeight: 800, color: '#6366f1' }}>#{pickup.pickupId}</div>
+        <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.5px' }}>PICKUP ID</div>
+        <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--primary)' }}>#{pickup.pickupId}</div>
       </div>
       <span style={{ 
         padding: '4px 10px', 
@@ -29,17 +29,16 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
       </span>
     </div>
 
-    {/* Verification Code Section - Smaller */}
     <div style={{ 
-      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05))', 
+      background: 'var(--glass-bg)', 
       borderRadius: '16px', 
       padding: '12px', 
       textAlign: 'center',
       marginBottom: '16px',
-      border: '1px solid rgba(255,255,255,0.03)'
+      border: '1px solid var(--border-color)'
     }}>
-      <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600 }}>VERIFICATION CODE</div>
-      <div style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '4px', color: 'white', fontFamily: 'monospace' }}>
+      <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 600 }}>VERIFICATION CODE</div>
+      <div style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '4px', color: 'var(--text-main)', fontFamily: 'monospace' }}>
         {pickup.pickupCode}
       </div>
     </div>
@@ -51,8 +50,8 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
           <User size={16} color="#ec4899" />
         </div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickup.customer?.name || 'Guest Customer'}</div>
-          <div style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickup.address}</div>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickup.customer?.name || 'Guest Customer'}</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-dim)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pickup.address}</div>
         </div>
       </div>
 
@@ -62,19 +61,19 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
           <Truck size={16} color="#6366f1" />
         </div>
         <div>
-          <div style={{ fontSize: '12px', fontWeight: 700 }}>{pickup.driver?.name || 'Assigning...'}</div>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-main)' }}>{pickup.driver?.name || 'Assigning...'}</div>
         </div>
       </div>
     </div>
 
     {/* Items Details - New Section */}
     <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', marginBottom: '16px' }}>
-      <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700, marginBottom: '8px' }}>ITEMS DETAILS</div>
+      <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '8px' }}>ITEMS DETAILS</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {pickup.items?.slice(0, 3).map((item, idx) => (
           <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-            <span style={{ color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>{item.name}</span>
-            <span style={{ color: '#94a3b8' }}>x{item.quantity}</span>
+            <span style={{ color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px' }}>{item.name}</span>
+            <span style={{ color: 'var(--text-dim)' }}>x{item.quantity}</span>
           </div>
         ))}
         {pickup.items?.length > 3 && (
@@ -263,8 +262,8 @@ const Pickups = () => {
     <Layout>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Pickups</h1>
-          <p style={{ color: '#94a3b8' }}>Schedule and track order pickups from your store.</p>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)' }}>Pickups</h1>
+          <p style={{ color: 'var(--text-dim)' }}>Schedule and track order pickups from your store.</p>
         </div>
       </div>
 
@@ -278,12 +277,12 @@ const Pickups = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}>
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }}>
             <Package size={20} />
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', overflowX: 'auto' }} className="hide-scrollbar">
+        <div style={{ display: 'flex', gap: '8px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)', overflowX: 'auto' }} className="hide-scrollbar">
           {['All', 'Pending / Packed', 'Completed'].map(type => (
             <button
               key={type}
@@ -293,7 +292,7 @@ const Pickups = () => {
                 borderRadius: '10px',
                 border: 'none',
                 background: filterType === type ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                color: filterType === type ? '#6366f1' : '#64748b',
+                color: filterType === type ? 'var(--primary)' : 'var(--text-dim)',
                 fontSize: '13px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -313,20 +312,20 @@ const Pickups = () => {
         gap: '16px', 
         marginBottom: '32px' 
       }}>
-        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-          <Truck size={24} color="#6366f1" style={{ marginBottom: '8px' }} />
-          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Scheduled Today</div>
-          <div style={{ fontSize: '20px', fontWeight: 800 }}>{pickups.filter(p => new Date(p.scheduledDate).toDateString() === new Date().toDateString()).length}</div>
+        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center', border: '1px solid var(--border-color)', background: 'var(--card-bg)' }}>
+          <Truck size={24} color="var(--primary)" style={{ marginBottom: '8px' }} />
+          <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>Scheduled Today</div>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)' }}>{pickups.filter(p => new Date(p.scheduledDate).toDateString() === new Date().toDateString()).length}</div>
         </div>
-        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center' }}>
+        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center', border: '1px solid var(--border-color)', background: 'var(--card-bg)' }}>
           <AlertCircle size={24} color="#f59e0b" style={{ marginBottom: '8px' }} />
-          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Pending / Packed</div>
-          <div style={{ fontSize: '20px', fontWeight: 800 }}>{pickups.filter(p => ['Pending', 'Packed'].includes(p.status)).length}</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>Pending / Packed</div>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)' }}>{pickups.filter(p => ['Pending', 'Packed'].includes(p.status)).length}</div>
         </div>
-        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center' }}>
+        <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', textAlign: 'center', border: '1px solid var(--border-color)', background: 'var(--card-bg)' }}>
           <CheckCircle size={24} color="#22c55e" style={{ marginBottom: '8px' }} />
-          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Completed Pickups</div>
-          <div style={{ fontSize: '20px', fontWeight: 800 }}>{pickups.filter(p => !['Pending', 'Packed'].includes(p.status)).length}</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>Completed Pickups</div>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)' }}>{pickups.filter(p => !['Pending', 'Packed'].includes(p.status)).length}</div>
         </div>
       </div>
 
@@ -341,8 +340,8 @@ const Pickups = () => {
           <div style={{ background: 'rgba(255,255,255,0.05)', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <Truck size={32} color="#64748b" />
           </div>
-          <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>No pickups scheduled</h3>
-          <p style={{ color: '#94a3b8', marginBottom: '24px' }}>Schedule your first pickup to get your orders moving.</p>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: 'var(--text-main)' }}>No pickups scheduled</h3>
+          <p style={{ color: 'var(--text-dim)', marginBottom: '24px' }}>Schedule your first pickup to get your orders moving.</p>
           <button className="btn-primary" style={{ margin: '0 auto' }}>
             Schedule Now
           </button>

@@ -94,13 +94,13 @@ const Pickup = () => {
     <Layout>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Driver Pickup</h1>
-          <p style={{ color: '#94a3b8' }}>Manage orders ready for driver collection.</p>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)' }}>Driver Pickup</h1>
+          <p style={{ color: 'var(--text-dim)' }}>Manage orders ready for driver collection.</p>
         </div>
       </div>
 
       <div style={{ flex: 1, position: 'relative', marginBottom: '24px' }}>
-        <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+        <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
         <input 
           type="text" 
           placeholder="Search by Order ID, Customer, or Driver..." 
@@ -117,16 +117,16 @@ const Pickup = () => {
             <div className="animate-spin" style={{ display: 'inline-block' }}><Truck size={32} color="#6366f1" /></div>
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <AlertCircle size={40} color="#64748b" style={{ marginBottom: '16px' }} />
-            <p style={{ color: '#94a3b8' }}>No orders waiting for pickup.</p>
+          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', background: 'var(--glass-bg)', borderRadius: '24px', border: '1px solid var(--border-color)' }}>
+            <AlertCircle size={40} color="var(--text-dim)" style={{ marginBottom: '16px' }} />
+            <p style={{ color: 'var(--text-dim)' }}>No orders waiting for pickup.</p>
           </div>
         ) : filteredOrders.map((order) => (
           <div key={order._id} className="glass-card" style={{ padding: '24px', borderRadius: '24px', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div>
-                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginBottom: '4px' }}>ORDER ID</div>
-                <div style={{ fontWeight: 700, color: '#6366f1' }}>#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: 600, marginBottom: '4px' }}>ORDER ID</div>
+                <div style={{ fontWeight: 700, color: 'var(--primary)' }}>#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
               </div>
               <StatusBadge status={order.orderStatus} />
             </div>
@@ -149,8 +149,8 @@ const Pickup = () => {
                     {order.deliveryBoyId.name?.charAt(0)}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>{order.deliveryBoyId.name}</div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>{order.deliveryBoyId.name}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Phone size={10} /> {order.deliveryBoyId.phone}
                     </div>
                   </div>

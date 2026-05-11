@@ -7,35 +7,42 @@ import {
   Truck, 
   Settings, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Sun,
+  Moon
 } from 'lucide-react';
+import { useTheme } from '../utils/ThemeContext';
 
-const SidebarItem = ({ to, icon: Icon, label }) => (
-  <NavLink 
-    to={to} 
-    style={({ isActive }) => ({
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      padding: '12px 16px',
-      borderRadius: '12px',
-      color: isActive ? 'white' : '#94a3b8',
-      background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-      textDecoration: 'none',
-      transition: 'all 0.3s ease',
-      border: isActive ? '1px solid rgba(99, 102, 241, 0.2)' : '1px solid transparent',
-      fontWeight: isActive ? '600' : '400',
-    })}
-    className="sidebar-link"
-  >
-    <Icon size={20} />
-    <span style={{ flex: 1 }}>{label}</span>
-    <ChevronRight size={16} className="chevron" />
-  </NavLink>
-);
+const SidebarItem = ({ to, icon: Icon, label }) => {
+  const { isDarkMode } = useTheme();
+  return (
+    <NavLink 
+      to={to} 
+      style={({ isActive }) => ({
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '12px 16px',
+        borderRadius: '12px',
+        color: isActive ? 'var(--primary)' : 'var(--text-dim)',
+        background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+        textDecoration: 'none',
+        transition: 'all 0.3s ease',
+        border: isActive ? '1px solid rgba(99, 102, 241, 0.2)' : '1px solid transparent',
+        fontWeight: isActive ? '600' : '400',
+      })}
+      className="sidebar-link"
+    >
+      <Icon size={20} />
+      <span style={{ flex: 1 }}>{label}</span>
+      <ChevronRight size={16} className="chevron" />
+    </NavLink>
+  );
+};
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     localStorage.removeItem('zudo_seller_token');
@@ -71,8 +78,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         display: 'flex',
         flexDirection: 'column',
         gap: '40px',
-        borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-        background: 'rgba(15, 23, 42, 0.9)',
+        borderRight: '1px solid var(--border-color)',
+        background: 'var(--sidebar-bg)',
         backdropFilter: 'blur(20px)',
         zIndex: 50,
         transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -112,6 +119,29 @@ const Sidebar = ({ isOpen, onClose }) => {
           <SidebarItem to="/orders" icon={ShoppingBag} label="Orders" />
           <SidebarItem to="/pickups" icon={Truck} label="Pickups" />
           <SidebarItem to="/settings" icon={Settings} label="Profile Settings" />
+          
+          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+            <button 
+              onClick={toggleTheme}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                color: 'var(--text-main)',
+                background: 'var(--glass-bg)',
+                border: '1px solid var(--glass-border)',
+                cursor: 'pointer',
+                width: '100%',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+              <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+          </div>
         </nav>
 
         <button 

@@ -30,7 +30,8 @@ const ProductDetailModal = ({ product, onClose }) => {
         borderRadius: '32px',
         padding: '32px',
         position: 'relative',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
+        border: '1px solid var(--glass-border)',
+        background: 'var(--bg-dark)'
       }}>
         <button 
           onClick={onClose}
@@ -38,9 +39,9 @@ const ProductDetailModal = ({ product, onClose }) => {
             position: 'absolute',
             right: '24px',
             top: '24px',
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: 'var(--glass-bg)',
             border: 'none',
-            color: '#94a3b8',
+            color: 'var(--text-dim)',
             padding: '8px',
             borderRadius: '12px',
             cursor: 'pointer'
@@ -108,32 +109,32 @@ const ProductDetailModal = ({ product, onClose }) => {
                   {product.subCategoryId?.name || 'Sub-Category'}
                 </div>
               </div>
-              <h2 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '6px', color: 'white', letterSpacing: '-0.5px' }}>{product.name}</h2>
-              <div style={{ color: '#64748b', fontSize: '13px', fontWeight: 500 }}>PRODUCT SKU: <span style={{ color: '#94a3b8' }}>{product.sku || 'N/A'}</span></div>
+              <h2 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '6px', color: 'var(--text-main)', letterSpacing: '-0.5px' }}>{product.name}</h2>
+              <div style={{ color: 'var(--text-dim)', fontSize: '13px', fontWeight: 500 }}>PRODUCT SKU: <span style={{ color: 'var(--text-main)' }}>{product.sku || 'N/A'}</span></div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '20px' }}>
-              <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>RETAIL PRICE</div>
+              <div style={{ padding: '20px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>RETAIL PRICE</div>
                 <div style={{ fontSize: '28px', fontWeight: 900, color: '#22c55e' }}>₹{product.price}</div>
               </div>
-              <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>AVAILABLE STOCK</div>
-                <div style={{ fontSize: '22px', fontWeight: 800, color: product.stock < 10 ? '#ef4444' : 'white' }}>
-                  {product.stock} <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 600 }}>UNITS</span>
+              <div style={{ padding: '20px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>AVAILABLE STOCK</div>
+                <div style={{ fontSize: '22px', fontWeight: 800, color: product.stock < 10 ? '#ef4444' : 'var(--text-main)' }}>
+                  {product.stock} <span style={{ fontSize: '14px', color: 'var(--text-dim)', fontWeight: 600 }}>UNITS</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '12px', letterSpacing: '0.5px' }}>DESCRIPTION</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '12px', letterSpacing: '0.5px' }}>DESCRIPTION</div>
               <div style={{ 
                 padding: '20px', 
-                background: 'rgba(255,255,255,0.01)', 
+                background: 'var(--glass-bg)', 
                 borderRadius: '20px', 
-                border: '1px solid rgba(255,255,255,0.03)',
+                border: '1px solid var(--border-color)',
                 fontSize: '14px', 
-                color: '#94a3b8', 
+                color: 'var(--text-main)', 
                 lineHeight: '1.7',
                 maxHeight: '180px',
                 overflowY: 'auto'
@@ -234,8 +235,8 @@ const Products = () => {
         gap: '20px'
       }}>
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Products</h1>
-          <p style={{ color: '#94a3b8' }}>Manage your product inventory and pricing.</p>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)' }}>Products</h1>
+          <p style={{ color: 'var(--text-dim)' }}>Manage your product inventory and pricing.</p>
         </div>
         <button 
           onClick={() => navigate('/products/add')}
@@ -329,12 +330,12 @@ const Products = () => {
       <div className="glass-card desktop-only" style={{ borderRadius: '24px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255, 255, 255, 0.02)' }}>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>PRODUCT</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>CATEGORY</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>PRICE</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>STOCK</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>ACTIONS</th>
+            <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--glass-bg)' }}>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>PRODUCT</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>CATEGORY</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>PRICE</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>STOCK</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>ACTIONS</th>
             </tr>
           </thead>
           <tbody>

@@ -6,10 +6,28 @@
   --secondary: #ec4899;
   --accent: #8b5cf6;
   --bg-dark: #0f172a;
+  --bg-gradient: radial-gradient(circle at top left, #1e293b, #0f172a);
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
   --text-main: #f8fafc;
   --text-dim: #94a3b8;
+  --sidebar-bg: rgba(15, 23, 42, 0.9);
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.05);
+}
+
+.light-mode {
+  --bg-dark: #f1f5f9;
+  --bg-gradient: radial-gradient(circle at top left, #f8fafc, #f1f5f9);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --text-main: #000000;
+  --text-dim: #000000;
+  --sidebar-bg: rgba(255, 255, 255, 0.9);
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -20,10 +38,11 @@
 
 body {
   font-family: 'Outfit', sans-serif;
-  background: radial-gradient(circle at top left, #1e293b, #0f172a);
+  background: var(--bg-gradient);
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .glass {
@@ -35,9 +54,9 @@ body {
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--card-bg);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
 }
 
@@ -75,11 +94,11 @@ body {
 }
 
 .input-field {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--input-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 10px;
   padding: 12px 16px;
-  color: white;
+  color: var(--text-main);
   outline: none;
   width: 100%;
   transition: all 0.3s ease;
@@ -87,17 +106,18 @@ body {
 
 .input-field:focus {
   border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--input-bg);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
 /* Fix for dropdown options visibility */
 select.input-field option {
-  background: #1e293b; /* Match the dark theme background */
-  color: white;
+  background: var(--bg-dark);
+  color: var(--text-main);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #fff, var(--text-dim));
+  background: linear-gradient(135deg, var(--text-main), var(--text-dim));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

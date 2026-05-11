@@ -127,8 +127,8 @@ const Orders = () => {
         right: 0, 
         width: '500px', 
         height: '100vh', 
-        background: '#0f172a', 
-        borderLeft: '1px solid rgba(255,255,255,0.1)',
+        background: 'var(--bg-dark)', 
+        borderLeft: '1px solid var(--border-color)',
         boxShadow: '-20px 0 50px rgba(0,0,0,0.5)',
         zIndex: 1000,
         padding: '32px',
@@ -146,8 +146,8 @@ const Orders = () => {
           `}
         </style>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: 800 }}>Order Details</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)' }}>Order Details</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}>
             <XCircle size={24} />
           </button>
         </div>
@@ -205,10 +205,10 @@ const Orders = () => {
                   onError={(e) => e.target.src = 'https://via.placeholder.com/48'}
                 />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '14px', fontWeight: 600 }}>{item.name}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>Qty: {item.quantity} × ₹{item.price}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>{item.name}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Qty: {item.quantity} × ₹{item.price}</div>
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: 700 }}>₹{item.quantity * item.price}</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>₹{item.quantity * item.price}</div>
               </div>
             ))}
           </div>
@@ -226,9 +226,9 @@ const Orders = () => {
                 style={{ 
                   padding: '12px',
                   borderRadius: '12px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  background: order.orderStatus === s ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255,255,255,0.05)',
-                  color: order.orderStatus === s ? '#6366f1' : 'white',
+                  border: '1px solid var(--border-color)',
+                  background: order.orderStatus === s ? 'rgba(99, 102, 241, 0.2)' : 'var(--glass-bg)',
+                  color: order.orderStatus === s ? '#6366f1' : 'var(--text-main)',
                   fontSize: '13px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -279,8 +279,8 @@ const Orders = () => {
         gap: '20px'
       }}>
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800 }}>Orders</h1>
-          <p style={{ color: '#94a3b8' }}>Monitor and manage your customer orders.</p>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)' }}>Orders</h1>
+          <p style={{ color: 'var(--text-dim)' }}>Monitor and manage your customer orders.</p>
         </div>
       </div>
 
@@ -297,8 +297,8 @@ const Orders = () => {
           />
         </div>
         
-        <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', overflowX: 'auto' }} className="hide-scrollbar">
-          {['All', 'Pending', 'Packed'].map(s => (
+        <div style={{ display: 'flex', gap: '8px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)', overflowX: 'auto' }} className="hide-scrollbar">
+          {['All', 'Pending', 'Processing', 'Packed'].map(s => (
             <button 
               key={s}
               onClick={() => setStatusFilter(s)}
@@ -307,7 +307,7 @@ const Orders = () => {
                 borderRadius: '10px',
                 border: 'none',
                 background: statusFilter === s ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                color: statusFilter === s ? '#6366f1' : '#64748b',
+                color: statusFilter === s ? '#6366f1' : 'var(--text-dim)',
                 fontSize: '13px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -325,14 +325,14 @@ const Orders = () => {
       <div className="glass-card desktop-only" style={{ borderRadius: '24px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(255, 255, 255, 0.02)' }}>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>ORDER ID</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>DATE</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>CUSTOMER</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>ITEMS</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>TOTAL</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>STATUS</th>
-              <th style={{ padding: '20px 24px', color: '#94a3b8', fontSize: '13px', fontWeight: 600 }}>ACTIONS</th>
+            <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--glass-bg)' }}>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>ORDER ID</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>DATE</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>CUSTOMER</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>ITEMS</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>TOTAL</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>STATUS</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
@@ -344,22 +344,22 @@ const Orders = () => {
               </tr>
             ) : filteredOrders.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                <td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>
                   No orders found yet.
                 </td>
               </tr>
             ) : filteredOrders.map((order) => (
-              <tr key={order._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }} className="table-row-hover">
+              <tr key={order._id} style={{ borderBottom: '1px solid var(--border-color)' }} className="table-row-hover">
                 <td style={{ padding: '16px 24px' }}>
                   <div style={{ fontWeight: 600, fontSize: '14px', color: '#6366f1' }}>#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <div style={{ fontSize: '14px' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div style={{ fontSize: '14px', color: 'var(--text-main)' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 500 }}>{order.userId?.name || 'Guest'}</div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{order.userId?.phone || order.shippingAddress?.phone}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)' }}>{order.userId?.name || 'Guest'}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{order.userId?.phone || order.shippingAddress?.phone}</div>
                 </td>
                 <td style={{ padding: '16px 24px', fontSize: '14px' }}>
                   {order.items?.length || 0} items
@@ -377,7 +377,7 @@ const Orders = () => {
                 <td style={{ padding: '16px 24px' }}>
                   <button 
                     onClick={() => setSelectedOrder(order)}
-                    style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                    style={{ padding: '8px', borderRadius: '8px', background: 'var(--glass-bg)', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}
                   >
                     <ExternalLink size={16} />
                   </button>
@@ -395,7 +395,7 @@ const Orders = () => {
             <div className="animate-spin" style={{ display: 'inline-block' }}><ShoppingBag size={24} /></div>
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-dim)' }}>
             No orders found yet.
           </div>
         ) : filteredOrders.map((order) => (

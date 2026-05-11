@@ -5,11 +5,11 @@ import Layout from '../components/Layout';
 import MapPicker from '../components/MapPicker';
 
 const InfoRow = ({ label, value, icon: Icon, color }) => (
-  <div style={{ display: 'flex', gap: '16px', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-    <div style={{ color: color || '#6366f1', marginTop: '2px' }}><Icon size={18} /></div>
+  <div style={{ display: 'flex', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
+    <div style={{ color: color || 'var(--primary)', marginTop: '2px' }}><Icon size={18} /></div>
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, marginBottom: '2px' }}>{label}</div>
-      <div style={{ fontSize: '15px', color: 'white', fontWeight: 500, lineHeight: 1.4 }}>{value || 'Not set'}</div>
+      <div style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: 600, marginBottom: '2px' }}>{label}</div>
+      <div style={{ fontSize: '15px', color: 'var(--text-main)', fontWeight: 500, lineHeight: 1.4 }}>{value || 'Not set'}</div>
     </div>
   </div>
 );
@@ -31,6 +31,7 @@ const Settings = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
   const MAPS_API_KEY = 'AIzaSyDXn6KSA4exy08KiKicYZ53wCfs20__qWU';
 
@@ -51,8 +52,10 @@ const Settings = () => {
       };
       setProfile(formattedData);
       setFormData(formattedData);
+      setError(null);
     } catch (err) {
       console.error('Failed to fetch profile:', err);
+      setError('Failed to load profile. Please check your connection or try logging in again.');
     } finally {
       setLoading(false);
     }
@@ -98,6 +101,15 @@ const Settings = () => {
     </Layout>
   );
 
+  if (error || !profile) return (
+    <Layout>
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '18px', fontWeight: 600 }}>{error || 'Profile not found'}</div>
+        <button onClick={fetchProfile} className="btn-primary" style={{ width: 'auto', padding: '10px 20px' }}>Retry</button>
+      </div>
+    </Layout>
+  );
+
   return (
     <Layout>
       <div style={{ maxWidth: '1000px' }}>
@@ -110,8 +122,8 @@ const Settings = () => {
           gap: '20px'
         }}>
           <div>
-            <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px' }}>Store Settings</h1>
-            <p style={{ color: '#94a3b8' }}>View and manage your professional profile.</p>
+            <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '8px', color: 'var(--text-main)' }}>Store Settings</h1>
+            <p style={{ color: 'var(--text-dim)' }}>View and manage your professional profile.</p>
           </div>
           {!isEditing ? (
             <button 
@@ -148,23 +160,23 @@ const Settings = () => {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           {/* General Info */}
           <div className="glass-card" style={{ padding: '32px', borderRadius: '24px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <User size={18} color="#6366f1" />
+            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-main)' }}>
+              <User size={18} color="var(--primary)" />
               Store Profile
             </h2>
             
             {isEditing ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Full Name</label>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Full Name</label>
                   <input type="text" className="input-field" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Store Name</label>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Store Name</label>
                   <input type="text" className="input-field" value={formData.storeName} onChange={e => setFormData({...formData, storeName: e.target.value})} required />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Phone Number</label>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Phone Number</label>
                   <input type="tel" className="input-field" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} required />
                 </div>
               </div>
@@ -179,21 +191,21 @@ const Settings = () => {
 
           {/* Billing & Location */}
           <div className="glass-card" style={{ padding: '32px', borderRadius: '24px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Building2 size={18} color="#ec4899" />
+            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-main)' }}>
+              <Building2 size={18} color="var(--secondary)" />
               Location Details
             </h2>
 
             {isEditing ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Billing Address</label>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Billing Address</label>
                   <textarea className="input-field" style={{ minHeight: '100px' }} value={formData.billingAddress} onChange={e => setFormData({...formData, billingAddress: e.target.value})} required />
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Pickup Location (Map)</label>
-                  <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', height: '300px' }}>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Pickup Location (Map)</label>
+                  <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)', height: '300px' }}>
                     <MapPicker apiKey={MAPS_API_KEY} onLocationSelect={handleLocationSelect} initialLocation={formData.pickupLocation} />
                   </div>
                   <input type="text" className="input-field" value={formData.pickupLocation.address} onChange={e => setFormData({...formData, pickupLocation: { ...formData.pickupLocation, address: e.target.value }})} required placeholder="Specific address..." />

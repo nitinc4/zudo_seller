@@ -6,7 +6,7 @@ const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'radial-gradient(circle at top left, #1e293b, #0f172a)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-gradient)' }}>
       {/* Mobile Header */}
       <div 
         className="mobile-only"
@@ -16,9 +16,9 @@ const Layout = ({ children }) => {
           left: 0,
           right: 0,
           height: '64px',
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: 'var(--sidebar-bg)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           padding: '0 20px',
@@ -35,11 +35,11 @@ const Layout = ({ children }) => {
           style={{ 
             background: 'none', 
             border: 'none', 
-            color: 'white', 
+            color: 'var(--text-main)', 
             cursor: 'pointer',
             padding: '8px',
             borderRadius: '8px',
-            background: 'rgba(255, 255, 255, 0.05)'
+            background: 'var(--glass-bg)'
           }}
         >
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
