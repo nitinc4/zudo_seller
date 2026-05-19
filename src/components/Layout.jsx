@@ -1,9 +1,23 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import { Menu, X } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('zudo_seller_user') || '{}');
+    const token = localStorage.getItem('zudo_seller_token');
+    
+    if (token && location.pathname !== '/verification-pending' && location.pathname !== '/complete-profile') {
+      if (!user.isVerified) {
+        navigate('/verification-pending');
+      }
+    }
+  }, [location.pathname, navigate]);
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-gradient)' }}>

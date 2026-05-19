@@ -10,6 +10,10 @@ import EditProduct from './pages/EditProduct';
 import Orders from './pages/Orders';
 import Pickups from './pages/Pickups';
 import Settings from './pages/Settings';
+import BulkUpload from './pages/BulkUpload';
+import Returns from './pages/Returns';
+import VerificationPending from './pages/VerificationPending';
+import FeedUpload from './pages/FeedUpload';
 
 import { ThemeProvider } from './utils/ThemeContext';
 
@@ -65,10 +69,26 @@ function App() {
           } 
         />
         <Route 
+          path="/products/bulk" 
+          element={
+            <ProtectedRoute>
+              <BulkUpload />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
           path="/orders" 
           element={
             <ProtectedRoute>
               <Orders />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/returns" 
+          element={
+            <ProtectedRoute>
+              <Returns />
             </ProtectedRoute>
           } 
         />
@@ -93,6 +113,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/verification-pending" 
+          element={
+            <ProtectedRoute>
+              <VerificationPending />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/feed-upload" 
+          element={
+            <ProtectedRoute>
+              <FeedUpload />
             </ProtectedRoute>
           } 
         />

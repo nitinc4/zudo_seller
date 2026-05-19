@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/api';
+import api, { uploadApi, IMAGE_BASE_URL } from '../utils/api';
 import MapPicker from '../components/MapPicker';
 import { Store, MapPin, Phone, Building2, Loader2, Save } from 'lucide-react';
 
@@ -13,7 +13,17 @@ const CompleteProfile = () => {
       lat: 28.6139,
       lng: 77.2090,
       address: ''
-    }
+    },
+    gstDoc: '',
+    panDoc: '',
+    tradeLicenseDoc: '',
+    rmcAmpcDoc: ''
+  });
+  const [uploading, setUploading] = useState({
+    gstDoc: false,
+    panDoc: false,
+    tradeLicenseDoc: false,
+    rmcAmpcDoc: false
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -33,8 +43,82 @@ const CompleteProfile = () => {
     });
   };
 
+  const handleFileUpload = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(prev => ({ ...prev, [field]: true }));
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+
+    try {
+      const { data } = await uploadApi.post('/upload', uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      // Store the full URL to ensure it's accessible everywhere
+      const fullUrl = `${IMAGE_BASE_URL}${data.url}`;
+      setFormData(prev => ({ ...prev, [field]: fullUrl }));
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Failed to upload document');
+    } finally {
+      setUploading(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const DocumentUpload = ({ label, field, value }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>{label}</label>
+      <div style={{ 
+        position: 'relative',
+        height: '120px',
+        border: '2px dashed rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: value ? 'rgba(34, 197, 94, 0.05)' : 'rgba(255,255,255,0.02)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease'
+      }} onClick={() => document.getElementById(field).click()}>
+        <input 
+          type="file" 
+          id={field} 
+          hidden 
+          onChange={(e) => handleFileUpload(e, field)}
+          accept=".pdf,image/*"
+        />
+        {uploading[field] ? (
+          <Loader2 className="animate-spin" size={24} color="#6366f1" />
+        ) : value ? (
+          <>
+            <div style={{ color: '#22c55e', marginBottom: '8px' }}><Save size={24} /></div>
+            <div style={{ fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>Document Uploaded</div>
+          </>
+        ) : (
+          <>
+            <div style={{ color: '#6366f1', marginBottom: '8px' }}><Store size={24} /></div>
+            <div style={{ fontSize: '12px', color: '#64748b' }}>Click to upload (PDF or Image)</div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation for mandatory documents
+    if (!formData.gstDoc) {
+      alert('Please upload your GST Document');
+      return;
+    }
+    if (!formData.panDoc) {
+      alert('Please upload your Company PAN');
+      return;
+    }
+
     setLoading(true);
     try {
       await api.put('/sellers/profile', formData);
@@ -138,6 +222,16 @@ const CompleteProfile = () => {
                 pickupLocation: { ...formData.pickupLocation, address: e.target.value }
               })}
             />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>Legal Documents</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <DocumentUpload label="GST Document" field="gstDoc" value={formData.gstDoc} />
+              <DocumentUpload label="Company PAN" field="panDoc" value={formData.panDoc} />
+              <DocumentUpload label="Trade Licence" field="tradeLicenseDoc" value={formData.tradeLicenseDoc} />
+              <DocumentUpload label="RMC/AMPC Licence" field="rmcAmpcDoc" value={formData.rmcAmpcDoc} />
+            </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>

@@ -25,7 +25,7 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
                '#6366f1',
         border: `1px solid ${(pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : pickup.status === 'Pending' ? '#f59e0b' : '#6366f1'}20`
       }}>
-        {pickup.status.toUpperCase()}
+        {(pickup.status || 'Pending').toUpperCase()}
       </span>
     </div>
 
@@ -60,8 +60,13 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
         <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Truck size={16} color="#6366f1" />
         </div>
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-main)' }}>{pickup.driver?.name || 'Assigning...'}</div>
+          {pickup.driver?.vehicleDetails && (
+            <div style={{ fontSize: '10px', color: 'var(--text-dim)', marginTop: '2px' }}>
+              {pickup.driver.vehicleDetails}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -100,7 +105,7 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
         }}
       >
         <FileText size={14} />
-        Invoice
+        Pickup Slip
       </button>
       <div style={{ fontSize: '14px', fontWeight: 800, color: '#22c55e' }}>₹{pickup.totalAmount}</div>
     </div>
@@ -141,114 +146,171 @@ const Pickups = () => {
     const invoiceContent = `
       <html>
         <head>
-          <title>Invoice_${pickup.pickupId}</title>
+          <title>Pickup_Slip_${pickup.pickupId}</title>
           <style>
-            body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; max-width: 800px; margin: 0 auto; }
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
+            @page { size: A5; margin: 0; }
+            body { 
+              font-family: 'Outfit', sans-serif; 
+              padding: 8mm; 
+              color: #0f172a; 
+              margin: 0; 
+              width: 148mm; 
+              height: 210mm;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              background: #fff;
+            }
             .no-print { 
-              display: flex; 
-              gap: 12px; 
-              margin-bottom: 30px; 
-              padding: 16px; 
-              background: #f8fafc; 
-              border-radius: 12px; 
-              border: 1px solid #e2e8f0;
+              display: flex; gap: 12px; margin-bottom: 20px; padding: 12px; 
+              background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;
+              position: fixed; top: 8mm; left: 8mm; right: 8mm; z-index: 100;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             }
             .print-btn { 
-              padding: 10px 24px; 
-              background: #6366f1; 
-              color: white; 
-              border: none; 
-              border-radius: 8px; 
-              cursor: pointer; 
-              font-weight: 700;
-              display: flex;
-              align-items: center;
-              gap: 8px;
+              padding: 10px 20px; background: #6366f1; color: white; border: none; 
+              border-radius: 8px; cursor: pointer; font-weight: 700; display: flex;
+              align-items: center; gap: 8px; font-size: 13px;
             }
-            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 30px; }
-            .logo { font-size: 24px; font-weight: 800; color: #6366f1; }
-            .invoice-title { font-size: 32px; font-weight: 800; text-align: right; }
-            .details { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
-            .details-section h3 { font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
-            .details-section p { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.5; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-            th { text-align: left; background: #f8fafc; padding: 12px; font-size: 12px; color: #64748b; text-transform: uppercase; }
-            td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-            .total-section { text-align: right; }
-            .total-row { display: flex; justify-content: flex-end; gap: 40px; margin-bottom: 10px; }
-            .total-label { color: #64748b; font-weight: 600; }
-            .total-value { font-weight: 800; min-width: 100px; }
-            .grand-total { font-size: 20px; color: #6366f1; }
-            .footer { margin-top: 60px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
-            @media print { .no-print { display: none; } }
+            .content-wrapper { margin-top: 55px; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; flex: 1; display: flex; flex-direction: column; }
+            
+            .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 2px solid #6366f1; padding-bottom: 15px; }
+            .logo-section { display: flex; flex-direction: column; }
+            .logo { font-size: 24px; font-weight: 800; color: #6366f1; letter-spacing: -1px; }
+            .slip-type { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: -4px; }
+            .id-section { text-align: right; }
+            .id-label { font-size: 10px; color: #64748b; font-weight: 700; }
+            .id-value { font-size: 16px; font-weight: 800; color: #0f172a; }
+
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+            .info-box h3 { font-size: 9px; color: #6366f1; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; font-weight: 800; }
+            .info-box p { margin: 0; font-size: 11px; font-weight: 600; line-height: 1.5; color: #334155; }
+            
+            table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 20px; border: 1px solid #f1f5f9; border-radius: 8px; overflow: hidden; }
+            th { text-align: left; background: #f8fafc; padding: 10px; font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 700; }
+            td { padding: 10px; border-top: 1px solid #f1f5f9; font-size: 11px; color: #334155; }
+            .qty-col { text-align: center; width: 40px; }
+            .price-col { text-align: right; width: 80px; }
+
+            .summary { margin-left: auto; width: 150px; margin-bottom: 30px; }
+            .summary-row { display: flex; justify-content: space-between; padding: 8px 0; }
+            .summary-label { font-size: 10px; color: #64748b; font-weight: 700; }
+            .summary-value { font-size: 14px; font-weight: 800; color: #6366f1; }
+
+            .signature-section { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 20px 0; }
+            .sign-container { display: flex; flex-direction: column; align-items: center; }
+            .sign-line { width: 100%; border-top: 1px dashed #cbd5e1; margin-bottom: 8px; height: 40px; }
+            .sign-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+
+            .footer { text-align: center; color: #94a3b8; font-size: 9px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
+            
+            @media print { 
+              .no-print { display: none; } 
+              .content-wrapper { margin-top: 0; border: none; padding: 0; }
+              body { padding: 8mm; }
+            }
           </style>
         </head>
         <body>
           <div class="no-print">
             <button class="print-btn" onclick="window.print()">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Print / Download PDF
+              Print Premium Slip
             </button>
-            <div style="font-size: 13px; color: #64748b; align-self: center;">
-              Click the button and select <b>"Save as PDF"</b> in the destination to download.
+            <div style="font-size: 12px; color: #64748b; align-self: center;">
+              Optimized for A5 Professional Printing
             </div>
           </div>
-          <div class="header">
-            <div class="logo">ZUDO</div>
-            <div class="invoice-title">INVOICE</div>
-          </div>
-          <div class="details">
-            <div class="details-section">
-              <h3>From</h3>
-              <p>${sellerName}</p>
-              <p>${sellerAddress}</p>
-              <p>Phone: ${sellerPhone}</p>
+          
+          <div class="content-wrapper">
+            <div class="header">
+              <div class="logo-section">
+                <div class="logo">ZUDO</div>
+                <div class="slip-type">Official Pickup Slip</div>
+              </div>
+              <div class="id-section">
+                <div class="id-label">ORDER ID</div>
+                <div class="id-value">#${pickup.pickupId}</div>
+              </div>
             </div>
-            <div class="details-section" style="text-align: right;">
-              <h3>To</h3>
-              <p>${pickup.customer?.name || 'Customer'}</p>
-              <p>${pickup.address}</p>
-              <p>Order ID: ${pickup.pickupId}</p>
-              <p>Date: ${new Date(pickup.scheduledDate).toLocaleDateString()}</p>
+            
+            <div class="info-grid">
+              <div class="info-box">
+                <h3>From (Seller)</h3>
+                <p style="color: #0f172a; font-weight: 700;">${sellerName}</p>
+                <p>${sellerAddress}</p>
+                <p>📞 ${sellerPhone}</p>
+              </div>
+              <div class="info-box" style="text-align: right;">
+                <h3>To (Customer)</h3>
+                <p style="color: #0f172a; font-weight: 700;">${pickup.customer?.name || 'Guest'}</p>
+                <p>${pickup.address}</p>
+                <p>📅 ${new Date(pickup.scheduledDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+              </div>
             </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Item Description</th>
-                <th>Price</th>
-                <th>Qty</th>
-                <th style="text-align: right;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${pickup.items.map(item => `
+            
+            <table>
+              <thead>
                 <tr>
-                  <td>${item.name || 'Product'}</td>
-                  <td>₹${item.price}</td>
-                  <td>${item.quantity}</td>
-                  <td style="text-align: right;">₹${item.price * item.quantity}</td>
+                  <th>Item Description</th>
+                  <th class="qty-col">Qty</th>
+                  <th class="price-col">Amount</th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          <div class="total-section">
-            <div class="total-row">
-              <span class="total-label">Subtotal</span>
-              <span class="total-value">₹${pickup.totalAmount}</span>
+              </thead>
+              <tbody>
+                ${pickup.items.map(item => `
+                  <tr>
+                    <td style="font-weight: 600;">${item.name || 'Product'}</td>
+                    <td class="qty-col">${item.quantity}</td>
+                    <td class="price-col">₹${item.price * item.quantity}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            
+            ${(() => {
+              const itemsSubtotal = pickup.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+              const otherCharges = pickup.totalAmount - itemsSubtotal;
+              return `
+                <div class="summary">
+                  <div class="summary-row">
+                    <span class="summary-label">Items Subtotal</span>
+                    <span class="summary-value" style="font-size: 11px; color: #64748b;">₹${itemsSubtotal}</span>
+                  </div>
+                  ${otherCharges > 0 ? `
+                  <div class="summary-row">
+                    <span class="summary-label">Other Charges</span>
+                    <span class="summary-value" style="font-size: 11px; color: #64748b;">₹${otherCharges}</span>
+                  </div>
+                  ` : ''}
+                  <div class="summary-row" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 8px;">
+                    <span class="summary-label">Tax (0%)</span>
+                    <span class="summary-value" style="font-size: 11px; color: #64748b;">₹0</span>
+                  </div>
+                  <div class="summary-row">
+                    <span class="summary-label">Grand Total</span>
+                    <span class="summary-value">₹${pickup.totalAmount}</span>
+                  </div>
+                </div>
+              `;
+            })()}
+
+            <div class="signature-section">
+              <div class="sign-container">
+                <div class="sign-line"></div>
+                <div class="sign-label">Authorized Seller</div>
+              </div>
+              <div class="sign-container">
+                <div class="sign-line"></div>
+                <div class="sign-label">Receiver / Driver</div>
+              </div>
             </div>
-            <div class="total-row">
-              <span class="total-label">Tax (0%)</span>
-              <span class="total-value">₹0</span>
+
+            <div class="footer">
+              <p>Thank you for choosing Zudo. This is a system-generated document.</p>
+              <p style="margin-top: 4px; font-weight: 600;">zudo.com</p>
             </div>
-            <div class="total-row grand-total">
-              <span class="total-label" style="color: #6366f1;">Grand Total</span>
-              <span class="total-value">₹${pickup.totalAmount}</span>
-            </div>
-          </div>
-          <div class="footer">
-            <p>Thank you for doing business with ${sellerName}!</p>
-            <p>This is a computer generated invoice and does not require a signature.</p>
           </div>
         </body>
       </html>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import api, { IMAGE_BASE_URL, getImageUrl } from '../utils/api';
-import { ShoppingBag, Search, Filter, MoreHorizontal, Calendar, User, MapPin, ExternalLink, Clock, CheckCircle, Truck, XCircle, RefreshCcw } from 'lucide-react';
+import { ShoppingBag, Search, Filter, MoreHorizontal, Calendar, User, MapPin, ExternalLink, Clock, CheckCircle, Truck, XCircle, RefreshCcw, Download, FileText, Printer, Check, X } from 'lucide-react';
 import Layout from '../components/Layout';
 
 const StatusBadge = ({ status }) => {
@@ -12,6 +13,7 @@ const StatusBadge = ({ status }) => {
     'Shipped': { bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', icon: Truck },
     'Delivered': { bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', icon: CheckCircle },
     'Cancelled': { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', icon: XCircle },
+    'Rejected by Seller': { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', icon: XCircle },
   };
 
   const config = configs[status] || configs['Pending'];
@@ -36,72 +38,42 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const StatusSelector = ({ status, onUpdate, disabled }) => {
-  const configs = {
-    'Pending': { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' },
-    'Packed': { bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' },
-    'Picked Up': { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981' },
-    'Processing': { bg: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' },
-    'Shipped': { bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' },
-    'Delivered': { bg: 'rgba(34, 197, 94, 0.1)', color: '#22c55e' },
-    'Cancelled': { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' },
-  };
-
-  const config = configs[status] || configs['Pending'];
-  const selectableStatuses = ['Pending', 'Packed'];
-
-  return (
-    <div style={{ position: 'relative', width: 'fit-content' }}>
-      <select 
-        value={status || 'Pending'} 
-        onChange={(e) => onUpdate(e.target.value)}
-        disabled={disabled}
-        style={{
-          appearance: 'none',
-          background: config.bg,
-          color: config.color,
-          border: `1px solid ${config.color}40`,
-          padding: '6px 28px 6px 12px',
-          borderRadius: '20px',
-          fontSize: '11px',
-          fontWeight: 700,
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          outline: 'none',
-          textTransform: 'uppercase',
-          transition: 'all 0.2s',
-          width: '130px'
-        }}
-      >
-        {/* Always show current status as an option */}
-        {!selectableStatuses.includes(status) && status && (
-          <option value={status} style={{ background: '#0f172a', color: 'white' }}>{status.toUpperCase()}</option>
-        )}
-        {selectableStatuses.map(s => (
-          <option key={s} value={s} style={{ background: '#0f172a', color: 'white' }}>{s.toUpperCase()}</option>
-        ))}
-      </select>
-      <div style={{ 
-        position: 'absolute', 
-        right: '10px', 
-        top: '50%', 
-        transform: 'translateY(-50%)', 
-        pointerEvents: 'none',
-        color: config.color,
-        fontSize: '10px'
-      }}>
-        ▼
-      </div>
-    </div>
-  );
-};
-
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [orderTypeFilter, setOrderTypeFilter] = useState('All');
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  const exportToExcel = () => {
+    const data = filteredOrders.map(order => ({
+      'Order ID': order.orderId || order._id,
+      'Date': new Date(order.createdAt).toLocaleDateString(),
+      'Time': new Date(order.createdAt).toLocaleTimeString(),
+      'Customer': order.userId?.name || 'Guest',
+      'Phone': order.userId?.phone || order.shippingAddress?.phone,
+      'Status': order.orderStatus,
+      'Total Amount': `₹${order.totalAmount}`,
+      'Payment Method': order.paymentMethod,
+      'Items Count': order.items?.length || 0,
+      'Address': order.shippingAddress?.address,
+      'City': order.shippingAddress?.city,
+      'Pincode': order.shippingAddress?.pincode,
+      'Items': order.items?.map(i => `${i.name} (x${i.quantity})`).join(', ')
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+    XLSX.writeFile(workbook, `Orders_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   const updateOrderStatus = async (orderId, newStatus) => {
     setUpdatingStatus(true);
@@ -168,7 +140,20 @@ const Orders = () => {
                 <User size={18} />
               </div>
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 600 }}>{order.userId?.name || 'Guest'}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600 }}>{order.userId?.name || 'Guest'}</div>
+                  <span style={{ 
+                    fontSize: '10px', 
+                    padding: '2px 8px', 
+                    borderRadius: '8px', 
+                    background: order.userId?.role === 'b2b' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(236, 72, 153, 0.1)',
+                    color: order.userId?.role === 'b2b' ? '#6366f1' : '#ec4899',
+                    fontWeight: 700,
+                    textTransform: 'uppercase'
+                  }}>
+                    {order.userId?.role || 'B2C'}
+                  </span>
+                </div>
                 <div style={{ fontSize: '12px', color: '#64748b' }}>{order.userId?.email}</div>
               </div>
             </div>
@@ -181,6 +166,39 @@ const Orders = () => {
                 <div style={{ fontSize: '13px', color: '#64748b' }}>{order.shippingAddress?.city}, {order.shippingAddress?.pincode}</div>
               </div>
             </div>
+
+            {/* Driver Info */}
+            {(order.driverId || order.deliveryBoyId) && (
+              <div style={{ 
+                marginTop: '12px',
+                padding: '16px', 
+                background: 'rgba(99, 102, 241, 0.05)', 
+                borderRadius: '16px',
+                border: '1px solid rgba(99, 102, 241, 0.1)'
+              }}>
+                <div style={{ fontSize: '11px', color: '#6366f1', fontWeight: 700, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Truck size={14} />
+                  ASSIGNED DRIVER
+                </div>
+                {(() => {
+                  const driver = order.driverId || order.deliveryBoyId;
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#6366f1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '14px' }}>
+                        {driver.name?.charAt(0)}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 600 }}>{driver.name}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{driver.phone}</span>
+                          {driver.vehicleDetails && <span style={{ color: '#6366f1' }}>• {driver.vehicleDetails}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </div>
 
@@ -214,32 +232,6 @@ const Orders = () => {
           </div>
         </div>
 
-        {/* Actions */}
-        <div style={{ marginTop: 'auto' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Update Status</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            {['Pending', 'Packed'].map(s => (
-              <button 
-                key={s}
-                disabled={updatingStatus || order.orderStatus === s}
-                onClick={() => updateOrderStatus(order._id, s)}
-                style={{ 
-                  padding: '12px',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border-color)',
-                  background: order.orderStatus === s ? 'rgba(99, 102, 241, 0.2)' : 'var(--glass-bg)',
-                  color: order.orderStatus === s ? '#6366f1' : 'var(--text-main)',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  opacity: updatingStatus ? 0.5 : 1
-                }}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     );
   };
@@ -265,11 +257,44 @@ const Orders = () => {
     const matchesSearch = orderIdStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           customerName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || (order.orderStatus || 'Pending') === statusFilter;
-    return matchesSearch && matchesStatus;
+    
+    // Order Type Filter (B2B / B2C)
+    const matchesType = orderTypeFilter === 'All' || 
+                        (orderTypeFilter === 'B2B' && order.userId?.role === 'b2b') ||
+                        (orderTypeFilter === 'B2C' && order.userId?.role === 'b2c');
+
+    // Date Filtering
+    let matchesDate = true;
+    if (dateRange.start || dateRange.end) {
+      const orderDate = new Date(order.createdAt);
+      if (dateRange.start) {
+        const start = new Date(dateRange.start);
+        start.setHours(0,0,0,0);
+        matchesDate = matchesDate && orderDate >= start;
+      }
+      if (dateRange.end) {
+        const end = new Date(dateRange.end);
+        end.setHours(23,59,59,999);
+        matchesDate = matchesDate && orderDate <= end;
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesDate && matchesType;
   });
 
   return (
     <Layout>
+      <style>
+        {`
+          @media print {
+            .no-print { display: none !important; }
+            .glass-card { border: none !important; box-shadow: none !important; background: white !important; color: black !important; }
+            body { background: white !important; color: black !important; }
+            table { width: 100% !important; border: 1px solid #ddd !important; }
+            th, td { border: 1px solid #ddd !important; color: black !important; }
+          }
+        `}
+      </style>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -277,14 +302,87 @@ const Orders = () => {
         marginBottom: '32px',
         flexWrap: 'wrap',
         gap: '20px'
-      }}>
+      }} className="no-print">
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)' }}>Orders</h1>
           <p style={{ color: 'var(--text-dim)' }}>Monitor and manage your customer orders.</p>
         </div>
+        
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            alignItems: 'center', 
+            background: 'white', 
+            padding: '8px 16px', 
+            borderRadius: '12px', 
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          }}>
+            <Calendar size={16} color="#64748b" />
+            <input 
+              type="date" 
+              value={dateRange.start}
+              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+              style={{ background: 'transparent', border: 'none', color: '#1e293b', fontSize: '13px', outline: 'none', fontWeight: '500' }}
+            />
+            <span style={{ color: '#94a3b8', fontWeight: '500' }}>to</span>
+            <input 
+              type="date" 
+              value={dateRange.end}
+              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+              style={{ background: 'transparent', border: 'none', color: '#1e293b', fontSize: '13px', outline: 'none', fontWeight: '500' }}
+            />
+          </div>
+
+          <button 
+            onClick={exportToExcel}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              padding: '10px 20px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+              color: 'white',
+              border: 'none',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <Download size={18} />
+            Export Excel
+          </button>
+          <button 
+            onClick={handlePrint}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              padding: '10px 20px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+              color: 'white',
+              border: 'none',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <Printer size={18} />
+            Print PDF
+          </button>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }} className="no-print">
         <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
           <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
           <input 
@@ -297,27 +395,54 @@ const Orders = () => {
           />
         </div>
         
-        <div style={{ display: 'flex', gap: '8px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)', overflowX: 'auto' }} className="hide-scrollbar">
-          {['All', 'Pending', 'Processing', 'Packed'].map(s => (
-            <button 
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              style={{ 
-                padding: '8px 16px',
-                borderRadius: '10px',
-                border: 'none',
-                background: statusFilter === s ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                color: statusFilter === s ? '#6366f1' : 'var(--text-dim)',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {s}
-            </button>
-          ))}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+          {/* Order Type Filter */}
+          <div style={{ display: 'flex', gap: '4px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+            {['All', 'B2B', 'B2C'].map(type => (
+              <button 
+                key={type}
+                onClick={() => setOrderTypeFilter(type)}
+                style={{ 
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: orderTypeFilter === type ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                  color: orderTypeFilter === type ? '#6366f1' : 'var(--text-dim)',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
+          {/* Status Filter */}
+          <div style={{ display: 'flex', gap: '8px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)', overflowX: 'auto' }} className="hide-scrollbar">
+            {['All', 'Pending', 'Processing', 'Packed'].map(s => (
+              <button 
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                style={{ 
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: statusFilter === s ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                  color: statusFilter === s ? '#6366f1' : 'var(--text-dim)',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -358,7 +483,20 @@ const Orders = () => {
                   <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)' }}>{order.userId?.name || 'Guest'}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)' }}>{order.userId?.name || 'Guest'}</div>
+                    <span style={{ 
+                      fontSize: '9px', 
+                      padding: '2px 6px', 
+                      borderRadius: '6px', 
+                      background: order.userId?.role === 'b2b' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(236, 72, 153, 0.1)',
+                      color: order.userId?.role === 'b2b' ? '#6366f1' : '#ec4899',
+                      fontWeight: 800,
+                      textTransform: 'uppercase'
+                    }}>
+                      {order.userId?.role || 'B2C'}
+                    </span>
+                  </div>
                   <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{order.userId?.phone || order.shippingAddress?.phone}</div>
                 </td>
                 <td style={{ padding: '16px 24px', fontSize: '14px' }}>
@@ -368,19 +506,68 @@ const Orders = () => {
                   ₹{order.totalAmount || 0}
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <StatusSelector 
-                    status={order.orderStatus} 
-                    onUpdate={(newStatus) => updateOrderStatus(order._id, newStatus)}
-                    disabled={updatingStatus}
-                  />
+                  <StatusBadge status={order.orderStatus} />
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <button 
-                    onClick={() => setSelectedOrder(order)}
-                    style={{ padding: '8px', borderRadius: '8px', background: 'var(--glass-bg)', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}
-                  >
-                    <ExternalLink size={16} />
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                    {(order.orderStatus === 'Pending' || !order.orderStatus) && (
+                      <>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateOrderStatus(order._id, 'Packed');
+                          }}
+                          disabled={updatingStatus}
+                          title="Accept & Mark as Packed"
+                          style={{ 
+                            padding: '8px 12px', 
+                            background: '#10b981', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '8px', 
+                            cursor: 'pointer', 
+                            fontSize: '11px', 
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Check size={14} /> Accept
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateOrderStatus(order._id, 'Rejected by Seller');
+                          }}
+                          disabled={updatingStatus}
+                          title="Reject Order"
+                          style={{ 
+                            padding: '8px 12px', 
+                            background: '#ef4444', 
+                            color: 'white', 
+                            border: 'none', 
+                            borderRadius: '8px', 
+                            cursor: 'pointer', 
+                            fontSize: '11px', 
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <X size={14} /> Reject
+                        </button>
+                      </>
+                    )}
+                    <button 
+                      onClick={() => setSelectedOrder(order)}
+                      title="View Details"
+                      style={{ padding: '8px', borderRadius: '8px', background: 'var(--glass-bg)', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}
+                    >
+                      <ExternalLink size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

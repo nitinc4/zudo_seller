@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/api';
+import api, { getImageUrl } from '../utils/api';
 import { Store, MapPin, Phone, Building2, Package, ShoppingBag, TrendingUp, Plus, ArrowRight } from 'lucide-react';
 import Layout from '../components/Layout';
 
@@ -63,7 +63,7 @@ const ActionButton = ({ icon: Icon, label, onClick, color }) => (
 
 const Dashboard = () => {
   const [seller, setSeller] = useState(null);
-  const [stats, setStats] = useState({ products: 0, orders: 0, sales: 0 });
+  const [stats, setStats] = useState({ todayOrders: 0, totalOrders: 0, outstandingPayments: 0, lowStockCount: 0, lowStockProducts: [] });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -72,10 +72,18 @@ const Dashboard = () => {
       try {
         const [profileRes, statsRes] = await Promise.all([
           api.get('/sellers/me'),
-          api.get('/sellers/stats').catch(() => ({ data: { products: 0, orders: 0, sales: 0 } }))
+          api.get('/sellers/stats').catch(() => ({ data: { todayOrders: 0, totalOrders: 0, outstandingPayments: 0, lowStockCount: 0, lowStockProducts: [] } }))
         ]);
         setSeller(profileRes.data);
         setStats(statsRes.data);
+        
+        // Sync isVerified status to localStorage
+        const user = JSON.parse(localStorage.getItem('zudo_seller_user') || '{}');
+        if (user.isVerified !== profileRes.data.isVerified) {
+          user.isVerified = profileRes.data.isVerified;
+          localStorage.setItem('zudo_seller_user', JSON.stringify(user));
+          if (!user.isVerified) navigate('/verification-pending');
+        }
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
         if (err.response?.status === 401) navigate('/login');
@@ -103,29 +111,36 @@ const Dashboard = () => {
 
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
         gap: '24px', 
         marginBottom: '40px' 
       }}>
         <StatCard 
-          icon={Package} 
-          label="Total Products" 
-          value={stats.totalProducts || 0} 
+          icon={ShoppingBag} 
+          label="Today's Orders" 
+          value={stats.todayOrders || 0} 
           color="#6366f1" 
-          onClick={() => navigate('/products')}
+          onClick={() => navigate('/orders')}
         />
         <StatCard 
-          icon={ShoppingBag} 
-          label="Active Orders" 
-          value={stats.activeOrders || 0} 
+          icon={Package} 
+          label="Total Orders" 
+          value={stats.totalOrders || 0} 
           color="#ec4899" 
           onClick={() => navigate('/orders')}
         />
         <StatCard 
           icon={TrendingUp} 
-          label="Total Sales" 
-          value={`₹${(stats.totalSales || 0).toLocaleString()}`} 
+          label="Outstanding" 
+          value={`₹${(stats.outstandingPayments || 0).toLocaleString()}`} 
           color="#22c55e" 
+        />
+        <StatCard 
+          icon={Package} 
+          label="Low Stock Alert" 
+          value={stats.lowStockCount || 0} 
+          color="#ef4444" 
+          onClick={() => navigate('/products')}
         />
       </div>
 
@@ -168,6 +183,34 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+
+          {stats.lowStockProducts?.length > 0 && (
+            <div className="glass-card" style={{ padding: '32px', borderRadius: '32px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#ef4444' }}>Low Stock Alert</h2>
+                <button onClick={() => navigate('/products')} style={{ fontSize: '12px', color: '#6366f1', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>View All</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {stats.lowStockProducts.map(product => (
+                  <div key={product._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px' }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' }}>
+                        <img src={getImageUrl(product.imageUrl)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 600 }}>{product.name}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>₹{product.price}</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: '#ef4444' }}>{product.stock} left</div>
+                      <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600 }}>STOCK LOW</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>

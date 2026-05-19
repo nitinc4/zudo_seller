@@ -9,7 +9,10 @@ import {
   LogOut,
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  FileSpreadsheet,
+  RotateCcw,
+  Rss
 } from 'lucide-react';
 import { useTheme } from '../utils/ThemeContext';
 
@@ -18,6 +21,7 @@ const SidebarItem = ({ to, icon: Icon, label }) => {
   return (
     <NavLink 
       to={to} 
+      end={to === '/' || to === '/products'} // Ensure exact match for root and products
       style={({ isActive }) => ({
         display: 'flex',
         alignItems: 'center',
@@ -84,13 +88,27 @@ const Sidebar = ({ isOpen, onClose }) => {
         zIndex: 50,
         transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: typeof isOpen !== 'undefined' ? (isOpen ? 'translateX(0)' : 'translateX(-100%)') : 'translateX(0)',
-      }} className="sidebar-container">
+        overflowY: 'auto',
+      }} className="sidebar-container custom-scrollbar">
         <style>
           {`
             @media (min-width: 1025px) {
               .sidebar-container {
                 transform: translateX(0) !important;
               }
+            }
+            .custom-scrollbar::-webkit-scrollbar {
+              width: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+              background: rgba(99, 102, 241, 0.1);
+              border-radius: 10px;
+            }
+            .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+              background: rgba(99, 102, 241, 0.3);
             }
           `}
         </style>
@@ -116,7 +134,10 @@ const Sidebar = ({ isOpen, onClose }) => {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
           <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" />
           <SidebarItem to="/products" icon={Package} label="Products" />
+          <SidebarItem to="/products/bulk" icon={FileSpreadsheet} label="Bulk Upload" />
+          <SidebarItem to="/feed-upload" icon={Rss} label="Feed Upload" />
           <SidebarItem to="/orders" icon={ShoppingBag} label="Orders" />
+          <SidebarItem to="/returns" icon={RotateCcw} label="Returns" />
           <SidebarItem to="/pickups" icon={Truck} label="Pickups" />
           <SidebarItem to="/settings" icon={Settings} label="Profile Settings" />
           

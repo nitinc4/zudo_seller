@@ -8,16 +8,49 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [locations, setLocations] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [fetchingLocations, setFetchingLocations] = useState(true);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const { data } = await api.get('/locations');
+        setLocations(data);
+        // Set default location if available
+        if (data.length > 0) {
+          const storedLoc = localStorage.getItem('zudo_seller_location');
+          if (storedLoc && data.find(l => l.name === storedLoc)) {
+            setSelectedLocation(storedLoc);
+          } else {
+            setSelectedLocation(data[0].name);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch locations', err);
+      } finally {
+        setFetchingLocations(false);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const { data } = await api.post('/sellers/login', { email, password });
+      const { data } = await api.post('/sellers/login', { 
+        email, 
+        password,
+        location: selectedLocation 
+      }, {
+        headers: { 'x-location': selectedLocation }
+      });
       localStorage.setItem('zudo_seller_token', data.token);
       localStorage.setItem('zudo_seller_user', JSON.stringify(data));
+      localStorage.setItem('zudo_seller_location', selectedLocation);
       
       if (!data.isProfileComplete) {
         navigate('/complete-profile');
@@ -100,6 +133,23 @@ const Login = () => {
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
             />
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <Store style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} size={20} />
+            <select 
+              className="input-field" 
+              style={{ paddingLeft: '48px', appearance: 'none' }}
+              required 
+              value={selectedLocation} 
+              onChange={(e) => setSelectedLocation(e.target.value)}
+              disabled={fetchingLocations}
+            >
+              <option value="" disabled>Select Location</option>
+              {locations.map(loc => (
+                <option key={loc._id} value={loc.name}>{loc.city} ({loc.name})</option>
+              ))}
+            </select>
           </div>
           <button type="submit" className="btn-primary" style={{ marginTop: '12px', height: '50px' }} disabled={loading}>
             {loading ? <Loader2 className="animate-spin" /> : 'Login to Dashboard'}

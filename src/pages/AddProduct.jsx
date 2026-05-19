@@ -46,6 +46,7 @@ const AddProduct = () => {
           api.get('/categories'),
           api.get('/sellers/me')
         ]);
+        console.log('[DEBUG] Categories fetched:', catRes.data);
         setCategories(catRes.data);
         setFormData(prev => ({ ...prev, sellerId: sellerRes.data._id }));
       } catch (err) {
