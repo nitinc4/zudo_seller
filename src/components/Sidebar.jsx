@@ -47,6 +47,16 @@ const SidebarItem = ({ to, icon: Icon, label }) => {
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { isDarkMode, toggleTheme } = useTheme();
+  const [seller, setSeller] = React.useState(null);
+
+  React.useEffect(() => {
+    const userStr = localStorage.getItem('zudo_seller_user');
+    if (userStr) {
+      try {
+        setSeller(JSON.parse(userStr));
+      } catch (e) {}
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('zudo_seller_token');
@@ -115,20 +125,27 @@ const Sidebar = ({ isOpen, onClose }) => {
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '0 8px' }}>
           <img 
-            src="/logo.png" 
-            alt="Logo" 
+            src={seller?.storePic || "/logo.png"} 
+            alt="Store Logo" 
             style={{ 
-              width: '40px', 
-              height: '40px', 
-              objectFit: 'contain',
-              borderRadius: '12px',
+              width: '64px', 
+              height: '64px', 
+              objectFit: 'cover',
+              borderRadius: '16px',
               background: 'white',
-              padding: '4px'
+              padding: seller?.storePic ? '0' : '8px',
+              border: '2px solid rgba(99, 102, 241, 0.2)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
             }} 
           />
-          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.5px' }}>
-            <span style={{ color: '#6366f1' }}>Seller</span>
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.5px', textAlign: 'center', color: 'var(--text-main)', lineHeight: '1.2' }}>
+              {seller?.businessName || seller?.storeName || seller?.name || 'Seller Store'}
+            </span>
+            <span style={{ fontSize: '12px', color: '#6366f1', fontWeight: 600, background: 'rgba(99, 102, 241, 0.1)', padding: '4px 12px', borderRadius: '12px' }}>
+              Verified Seller
+            </span>
+          </div>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>

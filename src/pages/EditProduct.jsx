@@ -31,6 +31,7 @@ const EditProduct = () => {
     subCategoryId: '',
     stock: '',
     sku: '',
+    gstRate: '0',
     sellerId: '',
     imageUrl: '',
     pdfUrl: ''
@@ -42,6 +43,7 @@ const EditProduct = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const navigate = useNavigate();
+  const [calcQuantity, setCalcQuantity] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,6 +65,7 @@ const EditProduct = () => {
           subCategoryId: p.subCategoryId?._id || p.subCategoryId || '',
           stock: p.stock || '',
           sku: p.sku || '',
+          gstRate: p.gstRate !== undefined ? String(p.gstRate) : '0',
           sellerId: p.sellerId || '',
           imageUrl: p.imageUrl || '',
           pdfUrl: p.pdfUrl || ''
@@ -126,6 +129,16 @@ const EditProduct = () => {
   );
 
   const selectedCategory = categories.find(c => String(c._id) === String(formData.categoryId));
+
+  const gstRateNum = Number(formData.gstRate) || 0;
+  
+  const regularPriceBase = (Number(formData.price) || 0) * calcQuantity;
+  const regularGstAmount = (regularPriceBase * gstRateNum) / 100;
+  const regularPriceTotal = regularPriceBase + regularGstAmount;
+
+  const b2bPriceBase = (Number(formData.b2bPrice) || 0) * calcQuantity;
+  const b2bGstAmount = (b2bPriceBase * gstRateNum) / 100;
+  const b2bPriceTotal = b2bPriceBase + b2bGstAmount;
 
   return (
     <Layout>
@@ -211,7 +224,7 @@ const EditProduct = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Regular Price (₹)</label>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>B2C Price (Base ₹)</label>
                   <div style={{ position: 'relative' }}>
                     <IndianRupee size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
                     <input 
@@ -226,7 +239,7 @@ const EditProduct = () => {
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>B2B Price (₹)</label>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>B2B Price (Base ₹)</label>
                   <div style={{ position: 'relative' }}>
                     <IndianRupee size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
                     <input 
@@ -239,6 +252,20 @@ const EditProduct = () => {
                       required
                     />
                   </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>GST Rate (%)</label>
+                  <input 
+                    type="number" 
+                    className="input-field" 
+                    placeholder="e.g. 18"
+                    value={formData.gstRate}
+                    onChange={e => setFormData({...formData, gstRate: e.target.value})}
+                    required
+                    min="0"
+                    max="100"
+                    step="0.01"
+                  />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Stock Quantity</label>
@@ -288,6 +315,69 @@ const EditProduct = () => {
                   />
                 </div>
               </div>
+
+              {/* Pricing Breakdown Hint */}
+              {(formData.price || formData.b2bPrice) && (
+                <div style={{ 
+                  marginTop: '25px', 
+                  padding: '24px', 
+                  borderRadius: '20px', 
+                  background: 'rgba(99, 102, 241, 0.05)', 
+                  border: '1px solid rgba(99, 102, 241, 0.1)',
+                  fontSize: '13px',
+                  lineHeight: '1.6',
+                  color: '#94a3b8'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ fontWeight: 700, color: '#6366f1', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Info size={16} /> Dynamic Pricing Simulator
+                    </div>
+                    {/* Interactive Weight/Quantity selector */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b' }}>
+                        Simulate Weight/Quantity:
+                      </span>
+                      <select 
+                        value={calcQuantity} 
+                        onChange={e => setCalcQuantity(Number(e.target.value))}
+                        style={{ 
+                          background: 'rgba(255,255,255,0.03)', 
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          color: 'white',
+                          borderRadius: '8px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value="1">1 {formData.unit || 'kg'}</option>
+                        <option value="2">2 {formData.unit || 'kg'}</option>
+                        <option value="5">5 {formData.unit || 'kg'}</option>
+                        <option value="10">10 {formData.unit || 'kg'}</option>
+                        <option value="20">20 {formData.unit || 'kg'}</option>
+                        <option value="50">50 {formData.unit || 'kg'}</option>
+                      </select>
+                    </div>
+                  </div>
+                  {formData.price && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span>B2C Price ({calcQuantity} {formData.unit || 'kg'}):</span>
+                      <span style={{ fontWeight: 600, color: '#e2e8f0' }}>
+                        ₹{regularPriceBase.toFixed(2)} Base + ₹{regularGstAmount.toFixed(2)} GST = <span style={{ color: '#22c55e', fontWeight: 700 }}>₹{regularPriceTotal.toFixed(2)}</span>
+                      </span>
+                    </div>
+                  )}
+                  {formData.b2bPrice && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>B2B Price ({calcQuantity} {formData.unit || 'kg'}):</span>
+                      <span style={{ fontWeight: 600, color: '#e2e8f0' }}>
+                        ₹{b2bPriceBase.toFixed(2)} Base + ₹{b2bGstAmount.toFixed(2)} GST = <span style={{ color: '#ec4899', fontWeight: 700 }}>₹{b2bPriceTotal.toFixed(2)}</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

@@ -8,12 +8,16 @@ const Layout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [user, setUser] = useState(null);
+
   React.useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('zudo_seller_user') || '{}');
+    const storedUserStr = localStorage.getItem('zudo_seller_user');
+    const storedUser = storedUserStr ? JSON.parse(storedUserStr) : {};
+    setUser(storedUser);
     const token = localStorage.getItem('zudo_seller_token');
     
     if (token && location.pathname !== '/verification-pending' && location.pathname !== '/complete-profile') {
-      if (!user.isVerified) {
+      if (!storedUser.isVerified) {
         navigate('/verification-pending');
       }
     }
@@ -41,8 +45,21 @@ const Layout = ({ children }) => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/logo.png" alt="Logo" style={{ width: '32px', height: '32px', background: 'white', borderRadius: '8px', padding: '4px' }} />
-          <span style={{ fontWeight: 800, fontSize: '18px' }}>Seller</span>
+          <img 
+            src={user?.storePic || "/logo.png"} 
+            alt="Logo" 
+            style={{ 
+              width: '32px', 
+              height: '32px', 
+              objectFit: 'cover',
+              background: 'white', 
+              borderRadius: '8px', 
+              padding: user?.storePic ? '0' : '4px' 
+            }} 
+          />
+          <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-main)' }}>
+            {user?.businessName || user?.storeName || user?.name || 'Seller'}
+          </span>
         </div>
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}

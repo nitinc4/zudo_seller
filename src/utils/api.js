@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-export const BASE_URL = 'http://localhost:5000/api';
-export const UPLOAD_URL = 'http://localhost:5000/api';
-export const IMAGE_BASE_URL = 'http://localhost:5000';
+export const BASE_URL = 'https://lightgreen-trout-176417.hostingersite.com/api';
+export const UPLOAD_URL = 'https://lightgreen-trout-176417.hostingersite.com/api';
+export const IMAGE_BASE_URL = 'https://lightgreen-trout-176417.hostingersite.com';
 
 const api = axios.create({
   baseURL: BASE_URL,

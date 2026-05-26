@@ -14,12 +14,14 @@ const CompleteProfile = () => {
       lng: 77.2090,
       address: ''
     },
+    storePic: '',
     gstDoc: '',
     panDoc: '',
     tradeLicenseDoc: '',
     rmcAmpcDoc: ''
   });
   const [uploading, setUploading] = useState({
+    storePic: false,
     gstDoc: false,
     panDoc: false,
     tradeLicenseDoc: false,
@@ -110,6 +112,10 @@ const CompleteProfile = () => {
     e.preventDefault();
     
     // Validation for mandatory documents
+    if (!formData.storePic) {
+      alert('Please upload your Store Logo/Picture');
+      return;
+    }
     if (!formData.gstDoc) {
       alert('Please upload your GST Document');
       return;
@@ -121,10 +127,11 @@ const CompleteProfile = () => {
 
     setLoading(true);
     try {
-      await api.put('/sellers/profile', formData);
+      const response = await api.put('/sellers/profile', formData);
+      const updatedUser = response.data;
       const user = JSON.parse(localStorage.getItem('zudo_seller_user'));
-      user.isProfileComplete = true;
-      localStorage.setItem('zudo_seller_user', JSON.stringify(user));
+      const newUser = { ...user, ...updatedUser, isProfileComplete: true };
+      localStorage.setItem('zudo_seller_user', JSON.stringify(newUser));
       navigate('/');
     } catch (err) {
       console.error('Profile update error:', err.response?.data);
@@ -225,10 +232,11 @@ const CompleteProfile = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>Legal Documents</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>Store Settings & Legal Documents</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-              <DocumentUpload label="GST Document" field="gstDoc" value={formData.gstDoc} />
-              <DocumentUpload label="Company PAN" field="panDoc" value={formData.panDoc} />
+              <DocumentUpload label="Store Logo/Picture *" field="storePic" value={formData.storePic} />
+              <DocumentUpload label="GST Document *" field="gstDoc" value={formData.gstDoc} />
+              <DocumentUpload label="Company PAN *" field="panDoc" value={formData.panDoc} />
               <DocumentUpload label="Trade Licence" field="tradeLicenseDoc" value={formData.tradeLicenseDoc} />
               <DocumentUpload label="RMC/AMPC Licence" field="rmcAmpcDoc" value={formData.rmcAmpcDoc} />
             </div>

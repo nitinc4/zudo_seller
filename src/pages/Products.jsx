@@ -7,6 +7,10 @@ import Layout from '../components/Layout';
 const ProductDetailModal = ({ product, onClose }) => {
   if (!product) return null;
 
+  const gstRate = product.gstRate || 0;
+  const regularTotal = product.price + (product.price * gstRate) / 100;
+  const b2bTotal = (product.b2bPrice || 0) + ((product.b2bPrice || 0) * gstRate) / 100;
+
   return (
     <div style={{
       position: 'fixed',
@@ -23,7 +27,7 @@ const ProductDetailModal = ({ product, onClose }) => {
       padding: '20px'
     }}>
       <div className="glass-card" style={{
-        maxWidth: '800px',
+        maxWidth: '850px',
         width: '100%',
         maxHeight: '90vh',
         overflowY: 'auto',
@@ -113,15 +117,28 @@ const ProductDetailModal = ({ product, onClose }) => {
               <div style={{ color: 'var(--text-dim)', fontSize: '13px', fontWeight: 500 }}>PRODUCT SKU: <span style={{ color: 'var(--text-main)' }}>{product.sku || 'N/A'}</span></div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '20px' }}>
-              <div style={{ padding: '20px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>RETAIL PRICE</div>
-                <div style={{ fontSize: '28px', fontWeight: 900, color: '#22c55e' }}>₹{product.price}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
+              <div style={{ padding: '16px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '6px', letterSpacing: '0.5px' }}>RETAIL PRICE (BASE)</div>
+                <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-main)' }}>₹{product.price}</div>
+                <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginTop: '2px' }}>
+                  Incl. {gstRate}% GST: ₹{regularTotal.toFixed(2)}
+                </div>
               </div>
-              <div style={{ padding: '20px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.5px' }}>AVAILABLE STOCK</div>
+              <div style={{ padding: '16px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '6px', letterSpacing: '0.5px' }}>B2B PRICE (BASE)</div>
+                <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-main)' }}>₹{product.b2bPrice || 0}</div>
+                <div style={{ fontSize: '11px', color: '#ec4899', fontWeight: 600, marginTop: '2px' }}>
+                  Incl. {gstRate}% GST: ₹{b2Total.toFixed(2)}
+                </div>
+              </div>
+              <div style={{ padding: '16px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '6px', letterSpacing: '0.5px' }}>AVAILABLE STOCK</div>
                 <div style={{ fontSize: '22px', fontWeight: 800, color: product.stock < 10 ? '#ef4444' : 'var(--text-main)' }}>
-                  {product.stock} <span style={{ fontSize: '14px', color: 'var(--text-dim)', fontWeight: 600 }}>UNITS</span>
+                  {product.stock} <span style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: 600 }}>UNITS</span>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 500, marginTop: '2px' }}>
+                  MOQ: {product.moq || 1} {product.unit || 'pcs'}
                 </div>
               </div>
             </div>
@@ -333,7 +350,7 @@ const Products = () => {
             <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--glass-bg)' }}>
               <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>PRODUCT</th>
               <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>CATEGORY</th>
-              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>PRICE</th>
+              <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>B2C PRICE (BASE)</th>
               <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>STOCK</th>
               <th style={{ padding: '20px 24px', color: 'var(--text-dim)', fontSize: '13px', fontWeight: 600 }}>ACTIONS</th>
             </tr>
@@ -373,10 +390,15 @@ const Products = () => {
                   <div style={{ fontSize: '14px', fontWeight: 500 }}>{product.categoryId?.name || product.category || 'N/A'}</div>
                   <div style={{ fontSize: '11px', color: '#64748b' }}>{product.subCategoryId?.name || product.subCategory || ''}</div>
                 </td>
-                <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600 }}>₹{product.price}</td>
+                <td style={{ padding: '16px 24px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600 }}>₹{product.price}</div>
+                  <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600 }}>
+                    ₹{(product.price + (product.price * (product.gstRate || 0)) / 100).toFixed(2)} ({product.gstRate || 0}% GST)
+                  </div>
+                </td>
                 <td style={{ padding: '16px 24px', fontSize: '14px' }}>
-                  <span style={{ color: product.stock < 10 ? '#ef4444' : '#22c55e' }}>
-                    {product.stock} units
+                  <span style={{ color: product.stock < 10 ? '#ef4444' : '#22c55e', fontWeight: 500 }}>
+                    {product.stock} {product.unit || 'pcs'}
                   </span>
                 </td>
                 <td style={{ padding: '16px 24px' }}>
@@ -431,10 +453,15 @@ const Products = () => {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '4px' }}>{product.name}</div>
-              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>{product.categoryId?.name}</div>
+              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '6px' }}>{product.categoryId?.name}</div>
+              <div style={{ marginBottom: '8px' }}>
+                <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>₹{product.price}</span>
+                <span style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginLeft: '8px' }}>
+                  ₹{(product.price + (product.price * (product.gstRate || 0)) / 100).toFixed(2)} ({product.gstRate || 0}%)
+                </span>
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontWeight: 700, color: '#22c55e' }}>₹{product.price}</div>
-                <div style={{ fontSize: '12px', color: product.stock < 10 ? '#ef4444' : '#94a3b8' }}>{product.stock} left</div>
+                <div style={{ fontSize: '12px', color: product.stock < 10 ? '#ef4444' : '#94a3b8' }}>{product.stock} units left</div>
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                 <button onClick={() => setSelectedProduct(product)} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: '#6366f1', fontSize: '12px', fontWeight: 600 }}>View</button>

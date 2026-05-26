@@ -1,422 +1,282 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { uploadApi, IMAGE_BASE_URL } from '../utils/api';
-import { 
-  Package, 
-  ChevronLeft, 
-  Upload, 
-  Save, 
-  X, 
-  Info, 
-  Tag, 
-  IndianRupee, 
-  Layers,
-  FileText,
-  Boxes,
-  ClipboardList,
-  RefreshCcw
-} from 'lucide-react';
-import Layout from '../components/Layout';
+import api, { uploadApi } from '../utils/api';
+import { Package, ArrowLeft, Loader2, Image as ImageIcon, FileText, CheckCircle, Plus  } from 'lucide-react';
 
 const AddProduct = () => {
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [sellers, setSellers] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [priceTiers, setPriceTiers] = useState([]);
+  
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    price: '',
-    b2bPrice: '',
-    moq: '1',
-    unit: 'pcs',
     categoryId: '',
     subCategoryId: '',
-    stock: '',
-    sku: '',
-    sellerId: ''
+    price: '',
+    b2bPrice: '',
+    gstPercent: 0,
+    moq: 1,
+    unit: 'pcs',
+    sellerId: '',
+    stock: 0,
+    description: '',
+    image: null,
+    pdf: null
   });
-
-  const [categories, setCategories] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [previews, setPreviews] = useState({ image: null });
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, sellerRes] = await Promise.all([
+        const [cats, sells] = await Promise.all([
           api.get('/categories'),
-          api.get('/sellers/me')
+          api.get('/sellers')
         ]);
-        console.log('[DEBUG] Categories fetched:', catRes.data);
-        setCategories(catRes.data);
-        setFormData(prev => ({ ...prev, sellerId: sellerRes.data._id }));
+        setCategories(cats.data);
+        setSellers(sells.data);
       } catch (err) {
-        console.error('Failed to fetch initial data:', err);
+        console.error('Failed to fetch required data', err);
+        setError('Failed to load categories or sellers');
+      } finally {
+        setLoadingData(false);
       }
     };
     fetchData();
   }, []);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      setPreviews({ ...previews, image: URL.createObjectURL(file) });
-    }
+  // Filter subcategories based on selected category
+  const selectedCategory = categories.find(c => c._id === formData.categoryId);
+  const subCategories = selectedCategory?.subCategories || [];
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData(prev => ({ ...prev, [name]: files[0] }));
+  };
+
+  const handleAddTier = () => setPriceTiers([...priceTiers, { minQty: '', price: '' }]);
+  const handleRemoveTier = (index) => setPriceTiers(priceTiers.filter((_, i) => i !== index));
+  const handleTierChange = (index, field, value) => {
+    const newTiers = [...priceTiers];
+    newTiers[index][field] = value;
+    setPriceTiers(newTiers);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.sellerId) {
-      alert('Seller ID not found. Please try again.');
-      return;
-    }
-    setLoading(true);
+    setSubmitting(true);
+    setError('');
 
     try {
-      let imageUrl = '';
+      const data = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== '') {
+          data.append(key, formData[key]);
+        }
+      });
+      data.append('priceTiers', JSON.stringify(priceTiers.filter(t => t.minQty && t.price)));
 
-      if (selectedImage) {
-        const imgData = new FormData();
-        imgData.append('file', selectedImage);
-        const { data: imgRes } = await uploadApi.post('/upload', imgData);
-        imageUrl = `${IMAGE_BASE_URL}${imgRes.url}`;
-      }
-
-      await api.post('/products', {
-        ...formData,
-        imageUrl,
-        pdfUrl: '' // Catalog removed
+      await uploadApi.post('/products', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       
       navigate('/products');
     } catch (err) {
-      console.error('Submission error:', err);
-      alert(err.response?.data?.message || 'Failed to add product');
-    } finally {
-      setLoading(false);
+      console.error(err);
+      setError(err.response?.data?.message || 'Failed to create product');
+      setSubmitting(false);
     }
   };
 
-  const selectedCategory = categories.find(c => String(c._id) === String(formData.categoryId));
+  if (loadingData) {
+    return <div style={{ display: 'flex', justifyContent: 'center', padding: '64px' }}><Loader2 className="animate-spin" size={32} color="#6366f1" /></div>;
+  }
 
   return (
-    <Layout>
-      <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '60px' }}>
-        {/* Header Section */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
-          <button 
-            onClick={() => navigate('/products')}
-            style={{ 
-              width: '45px', 
-              height: '45px', 
-              borderRadius: '15px', 
-              background: 'rgba(255,255,255,0.03)', 
-              border: '1px solid rgba(255,255,255,0.08)', 
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-            className="hover-scale"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <div>
-            <h1 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.5px' }}>Add Product</h1>
-            <p style={{ color: '#94a3b8', fontSize: '15px' }}>Create a new listing for your store.</p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-          gap: '32px' 
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            
-            {/* General Information Card */}
-            <div className="glass-card" style={{ padding: '35px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
-                  <ClipboardList size={22} />
-                </div>
-                <h2 style={{ fontSize: '20px', fontWeight: 700 }}>General Information</h2>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Product Name</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="e.g. Premium Basmati Rice"
-                    value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                    required
-                    style={{ fontSize: '16px', padding: '15px 20px' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Product Description</label>
-                  <textarea 
-                    className="input-field" 
-                    style={{ minHeight: '160px', resize: 'vertical', padding: '15px 20px', fontSize: '15px', lineHeight: '1.6' }}
-                    placeholder="Describe the features, benefits, and specifications..."
-                    value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Pricing & Stock Card */}
-            <div className="glass-card" style={{ padding: '35px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(34, 197, 94, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#22c55e' }}>
-                  <Tag size={22} />
-                </div>
-                <h2 style={{ fontSize: '20px', fontWeight: 700 }}>Pricing & Inventory</h2>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '25px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Regular Price (₹)</label>
-                  <div style={{ position: 'relative' }}>
-                    <IndianRupee size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                    <input 
-                      type="number" 
-                      className="input-field" 
-                      style={{ paddingLeft: '42px' }}
-                      placeholder="0.00"
-                      value={formData.price}
-                      onChange={e => setFormData({...formData, price: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>B2B Price (₹)</label>
-                  <div style={{ position: 'relative' }}>
-                    <IndianRupee size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                    <input 
-                      type="number" 
-                      className="input-field" 
-                      style={{ paddingLeft: '42px' }}
-                      placeholder="0.00"
-                      value={formData.b2bPrice}
-                      onChange={e => setFormData({...formData, b2bPrice: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Stock Quantity</label>
-                  <div style={{ position: 'relative' }}>
-                    <Boxes size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                    <input 
-                      type="number" 
-                      className="input-field" 
-                      style={{ paddingLeft: '45px' }}
-                      placeholder="0"
-                      value={formData.stock}
-                      onChange={e => setFormData({...formData, stock: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Unit Type</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="e.g. kg, pcs, box"
-                    value={formData.unit}
-                    onChange={e => setFormData({...formData, unit: e.target.value})}
-                    required
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>MOQ</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
-                    placeholder="1"
-                    value={formData.moq}
-                    onChange={e => setFormData({...formData, moq: e.target.value})}
-                    required
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>SKU (Optional)</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="SKU-XYZ-001"
-                    value={formData.sku}
-                    onChange={e => setFormData({...formData, sku: e.target.value})}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            
-            {/* Media Card */}
-            <div className="glass-card" style={{ padding: '30px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
-                <div style={{ width: '35px', height: '35px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7' }}>
-                  <Upload size={18} />
-                </div>
-                <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Media</h2>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div 
-                  onClick={() => document.getElementById('image-upload').click()}
-                  style={{ 
-                    width: '100%',
-                    aspectRatio: '1',
-                    borderRadius: '24px',
-                    border: '2px dashed rgba(255,255,255,0.1)',
-                    background: previews.image ? `url(${previews.image}) center/cover` : 'rgba(255,255,255,0.02)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    transition: 'all 0.3s'
-                  }}
-                  className="media-upload-container"
-                >
-                  {!previews.image && (
-                    <>
-                      <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                        <Upload size={24} color="#94a3b8" />
-                      </div>
-                      <span style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Upload Image</span>
-                      <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>PNG, JPG up to 5MB</span>
-                    </>
-                  )}
-                  {previews.image && (
-                    <div style={{ 
-                      position: 'absolute', 
-                      inset: 0, 
-                      background: 'rgba(0,0,0,0.4)', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.3s'
-                    }} className="upload-overlay">
-                      <RefreshCcw size={24} color="white" />
-                    </div>
-                  )}
-                  <input id="image-upload" type="file" hidden accept="image/*" onChange={handleImageChange} />
-                </div>
-              </div>
-            </div>
-
-            {/* Category Card */}
-            <div className="glass-card" style={{ padding: '30px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
-                <div style={{ width: '35px', height: '35px', borderRadius: '10px', background: 'rgba(236, 72, 153, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ec4899' }}>
-                  <Layers size={18} />
-                </div>
-                <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Categorization</h2>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Category</label>
-                  <select 
-                    className="input-field"
-                    value={formData.categoryId}
-                    onChange={e => setFormData({...formData, categoryId: e.target.value, subCategoryId: ''})}
-                    required
-                    style={{ height: '50px', cursor: 'pointer' }}
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map(cat => (
-                      <option key={cat._id} value={cat._id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Sub-Category</label>
-                  <select 
-                    className="input-field"
-                    value={formData.subCategoryId}
-                    onChange={e => setFormData({...formData, subCategoryId: e.target.value})}
-                    disabled={!formData.categoryId}
-                    style={{ height: '50px', cursor: 'pointer' }}
-                  >
-                    <option value="">Select Sub-Category</option>
-                    {selectedCategory?.subCategories?.map(sub => (
-                      <option key={sub._id} value={sub._id}>{sub.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </form>
-
-        {/* Bottom Actions */}
-        <div style={{ 
-          marginTop: '40px', 
-          padding: '24px', 
-          borderRadius: '24px', 
-          background: 'rgba(255,255,255,0.02)', 
-          border: '1px solid rgba(255,255,255,0.05)',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: '16px',
-          flexWrap: 'wrap'
-        }}>
-          <button 
-            onClick={() => navigate('/products')}
-            style={{ 
-              padding: '12px 32px', 
-              borderRadius: '15px', 
-              background: 'transparent', 
-              border: '1px solid rgba(255,255,255,0.1)', 
-              color: '#94a3b8',
-              fontWeight: 600,
-              cursor: 'pointer',
-              flex: '1',
-              minWidth: '120px'
-            }}
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleSubmit}
-            className="btn-primary" 
-            style={{ padding: '12px 48px', borderRadius: '15px', flex: '2', minWidth: '200px' }}
-            disabled={loading}
-          >
-            {loading ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div className="animate-spin"><Save size={18} /></div>
-                <span>Saving...</span>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Save size={18} />
-                <span>Save Product</span>
-              </div>
-            )}
-          </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '800px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <button 
+          onClick={() => navigate('/products')} 
+          style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#fff', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <div>
+          <h2 style={{ fontSize: '24px', fontWeight: 700 }}>Add New Product</h2>
+          <p style={{ fontSize: '14px', color: '#94a3b8' }}>Create a new item in your inventory</p>
         </div>
       </div>
-    </Layout>
+
+      {error && (
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '16px', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="glass-card" style={{ padding: '32px', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        
+        {/* Basic Details */}
+        <div>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Package size={18} color="#6366f1" /> Basic Details
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Product Name *</label>
+              <input type="text" name="name" className="input-field" value={formData.name} onChange={handleInputChange} required placeholder="Enter product name" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Description</label>
+              <textarea name="description" className="input-field" value={formData.description} onChange={handleInputChange} placeholder="Enter description" style={{ minHeight: '100px', resize: 'vertical' }}></textarea>
+            </div>
+          </div>
+        </div>
+
+        <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)' }} />
+
+        {/* Classification */}
+        <div>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', color: '#e2e8f0' }}>Classification & Seller</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Category *</label>
+              <select name="categoryId" className="input-field" value={formData.categoryId} onChange={handleInputChange} required>
+                <option value="">Select Category</option>
+                {categories.map(cat => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>SubCategory</label>
+              <select name="subCategoryId" className="input-field" value={formData.subCategoryId} onChange={handleInputChange} disabled={!formData.categoryId}>
+                <option value="">Select SubCategory (Optional)</option>
+                {subCategories.map(sub => (
+                  <option key={sub._id} value={sub._id}>{sub.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Assign Seller</label>
+              <select name="sellerId" className="input-field" value={formData.sellerId} onChange={handleInputChange}>
+                <option value="">Select Seller (Optional)</option>
+                {sellers.map(seller => (
+                  <option key={seller._id} value={seller._id}>{seller.storeName || seller.businessName || seller.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)' }} />
+
+        {/* Pricing & Inventory */}
+        <div>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', color: '#e2e8f0' }}>Pricing & Inventory</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>B2C Price (₹) *</label>
+              <input type="number" name="price" className="input-field" value={formData.price} onChange={handleInputChange} required min="0" step="0.01" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>B2B Price (₹) *</label>
+              <input type="number" name="b2bPrice" className="input-field" value={formData.b2bPrice} onChange={handleInputChange} required min="0" step="0.01" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Stock Quantity *</label>
+              <input type="number" name="stock" className="input-field" value={formData.stock} onChange={handleInputChange} required min="0" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>MOQ *</label>
+              <input type="number" name="moq" className="input-field" value={formData.moq} onChange={handleInputChange} required min="1" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>GST % *</label>
+              <input type="number" name="gstPercent" className="input-field" value={formData.gstPercent} onChange={handleInputChange} required min="0" step="0.1" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Unit *</label>
+              <input type="text" name="unit" className="input-field" value={formData.unit} onChange={handleInputChange} required placeholder="e.g. pcs, kg" />
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }}>B2B Tiered Pricing</h4>
+              <button type="button" onClick={handleAddTier} style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Plus size={14} /> Add Tier
+              </button>
+            </div>
+            {priceTiers.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {priceTiers.map((tier, index) => (
+                  <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Min Quantity</label>
+                      <input type="number" className="input-field" value={tier.minQty} onChange={(e) => handleTierChange(index, 'minQty', e.target.value)} placeholder="e.g. 50" min="2" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Price per Unit (₹)</label>
+                      <input type="number" className="input-field" value={tier.price} onChange={(e) => handleTierChange(index, 'price', e.target.value)} placeholder="e.g. 190" min="0" step="0.01" />
+                    </div>
+                    <button type="button" onClick={() => handleRemoveTier(index)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', height: '40px', display: 'flex', alignItems: 'center' }}>
+                      <Plus size={16} style={{ transform: 'rotate(45deg)' }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)' }} />
+
+        {/* Media */}
+        <div>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', color: '#e2e8f0' }}>Media Assets</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ padding: '10px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '10px', color: '#6366f1' }}>
+                  <ImageIcon size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600 }}>Product Image *</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>JPEG, PNG, WEBP</div>
+                </div>
+              </div>
+              <input type="file" name="image" onChange={handleFileChange} accept="image/*" required style={{ width: '100%', fontSize: '13px' }} />
+            </div>
+
+            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ padding: '10px', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '10px', color: '#ec4899' }}>
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600 }}>Product Brochure / PDF</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>PDF document (Optional)</div>
+                </div>
+              </div>
+              <input type="file" name="pdf" onChange={handleFileChange} accept="application/pdf" style={{ width: '100%', fontSize: '13px' }} />
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+          <button type="submit" className="btn-primary" disabled={submitting} style={{ padding: '14px 32px', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {submitting ? <Loader2 className="animate-spin" size={18} /> : <><CheckCircle size={18} /> Create Product</>}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 

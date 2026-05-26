@@ -48,8 +48,8 @@ const BulkUpload = () => {
 
   const downloadTemplate = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Name,Category,SubCategory,Price,B2BPrice,MOQ,Unit,Stock,Description,ImageUrl\n"
-      + "Example Product,Electronics,Mobile,10000,9500,5,pcs,50,High quality smartphone,https://example.com/image.png";
+      + "Name,Category,SubCategory,Price,B2BPrice,GST,MOQ,Unit,Stock,Description,ImageUrl\n"
+      + "Example Product,Electronics,Mobile,10000,9500,18,5,pcs,50,High quality smartphone,https://example.com/image.png";
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -78,6 +78,7 @@ const BulkUpload = () => {
             <ul style={{ color: 'var(--text-dim)', fontSize: '14px', lineHeight: '1.8', paddingLeft: '20px' }}>
               <li>Download the sample template to see the required column headers.</li>
               <li>Fill in your product details. Mandatory fields: <strong>Name, Category, Price, B2BPrice, Unit</strong>.</li>
+              <li>Include the <strong>GST</strong> column (use standard brackets: <code>0</code>, <code>5</code>, <code>12</code>, <code>18</code>, <code>28</code>) to set the product tax rate. Defaults to 0 if left empty.</li>
               <li>If the Category or SubCategory doesn't exist, they will be automatically created.</li>
               <li>Upload the file below and wait for the confirmation message.</li>
             </ul>
