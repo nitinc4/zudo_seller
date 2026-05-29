@@ -11,6 +11,8 @@ const AddProduct = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [priceTiers, setPriceTiers] = useState([]);
+  const [b2bVariants, setB2bVariants] = useState([]);
+  const [b2cVariants, setB2cVariants] = useState([]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -69,6 +71,22 @@ const AddProduct = () => {
     setPriceTiers(newTiers);
   };
 
+  const handleAddB2b = () => setB2bVariants([...b2bVariants, { packetSize: '5kg', price: '', stock: '' }]);
+  const handleRemoveB2b = (index) => setB2bVariants(b2bVariants.filter((_, i) => i !== index));
+  const handleB2bChange = (index, field, value) => {
+    const newArr = [...b2bVariants];
+    newArr[index][field] = value;
+    setB2bVariants(newArr);
+  };
+
+  const handleAddB2c = () => setB2cVariants([...b2cVariants, { packetSize: '1kg', price: '', stock: '' }]);
+  const handleRemoveB2c = (index) => setB2cVariants(b2cVariants.filter((_, i) => i !== index));
+  const handleB2cChange = (index, field, value) => {
+    const newArr = [...b2cVariants];
+    newArr[index][field] = value;
+    setB2cVariants(newArr);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -82,6 +100,8 @@ const AddProduct = () => {
         }
       });
       data.append('priceTiers', JSON.stringify(priceTiers.filter(t => t.minQty && t.price)));
+      data.append('b2b', JSON.stringify(b2bVariants.filter(t => t.packetSize && t.price)));
+      data.append('b2c', JSON.stringify(b2cVariants.filter(t => t.packetSize && t.price)));
 
       await uploadApi.post('/products', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -205,6 +225,70 @@ const AddProduct = () => {
               <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Unit *</label>
               <input type="text" name="unit" className="input-field" value={formData.unit} onChange={handleInputChange} required placeholder="e.g. pcs, kg" />
             </div>
+          </div>
+
+          <div style={{ marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }}>B2C Variants (gm, kg)</h4>
+              <button type="button" onClick={handleAddB2c} style={{ background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Plus size={14} /> Add B2C Variant
+              </button>
+            </div>
+            {b2cVariants.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {b2cVariants.map((v, index) => (
+                  <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Packet Size</label>
+                      <input type="text" className="input-field" value={v.packetSize} onChange={(e) => handleB2cChange(index, 'packetSize', e.target.value)} placeholder="e.g. 250gm" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Price (₹)</label>
+                      <input type="number" className="input-field" value={v.price} onChange={(e) => handleB2cChange(index, 'price', e.target.value)} placeholder="Price" min="0" step="0.01" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Stock</label>
+                      <input type="number" className="input-field" value={v.stock} onChange={(e) => handleB2cChange(index, 'stock', e.target.value)} placeholder="Stock" min="0" />
+                    </div>
+                    <button type="button" onClick={() => handleRemoveB2c(index)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', height: '40px', display: 'flex', alignItems: 'center' }}>
+                      <Plus size={16} style={{ transform: 'rotate(45deg)' }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginTop: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }}>B2B Variants (kg only)</h4>
+              <button type="button" onClick={handleAddB2b} style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Plus size={14} /> Add B2B Variant
+              </button>
+            </div>
+            {b2bVariants.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {b2bVariants.map((v, index) => (
+                  <div key={index} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Packet Size</label>
+                      <input type="text" className="input-field" value={v.packetSize} onChange={(e) => handleB2bChange(index, 'packetSize', e.target.value)} placeholder="e.g. 5kg" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Price (₹)</label>
+                      <input type="number" className="input-field" value={v.price} onChange={(e) => handleB2bChange(index, 'price', e.target.value)} placeholder="Price" min="0" step="0.01" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>Stock</label>
+                      <input type="number" className="input-field" value={v.stock} onChange={(e) => handleB2bChange(index, 'stock', e.target.value)} placeholder="Stock" min="0" />
+                    </div>
+                    <button type="button" onClick={() => handleRemoveB2b(index)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', height: '40px', display: 'flex', alignItems: 'center' }}>
+                      <Plus size={16} style={{ transform: 'rotate(45deg)' }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div style={{ marginTop: '24px' }}>

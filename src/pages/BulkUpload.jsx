@@ -48,8 +48,8 @@ const BulkUpload = () => {
 
   const downloadTemplate = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Name,Category,SubCategory,Price,B2BPrice,GST,MOQ,Unit,Stock,Description,ImageUrl\n"
-      + "Example Product,Electronics,Mobile,10000,9500,18,5,pcs,50,High quality smartphone,https://example.com/image.png";
+      + "Name,Category,SubCategory,Price,B2BPrice,GST,MOQ,Unit,Description,ImageUrl,B2C_Size,B2C_Price,B2C_Stock,B2B_Size,B2B_Price,B2B_Stock,Tier1_Qty,Tier1_Price,Tier2_Qty,Tier2_Price\n"
+      + "Example Product,Electronics,Mobile,10000,9500,18,5,pcs,High quality smartphone,https://example.com/image.png,250gm,10000,50,5kg,9500,50,50,9000,100,8500";
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
