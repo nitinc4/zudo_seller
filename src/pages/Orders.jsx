@@ -20,13 +20,13 @@ const StatusBadge = ({ status }) => {
   const Icon = config.icon || Clock;
 
   return (
-    <span style={{ 
+    <span style={{
       display: 'flex',
       alignItems: 'center',
       gap: '6px',
-      padding: '4px 12px', 
-      borderRadius: '20px', 
-      fontSize: '11px', 
+      padding: '4px 12px',
+      borderRadius: '20px',
+      fontSize: '11px',
       fontWeight: 700,
       background: config.bg,
       color: config.color,
@@ -56,7 +56,7 @@ const Orders = () => {
       'Customer': order.userId?.name || 'Guest',
       'Phone': order.userId?.phone || order.shippingAddress?.phone,
       'Status': order.orderStatus,
-      'Total Amount': `₹${order.totalAmount}`,
+      'Total Amount': `₹${order.totalAmountWithoutCommissions !== undefined ? order.totalAmountWithoutCommissions : (order.sellerItemsNetTotal !== undefined ? order.sellerItemsNetTotal : order.totalAmount)}`,
       'Payment Method': order.paymentMethod,
       'Items Count': order.items?.length || 0,
       'Address': order.shippingAddress?.address,
@@ -78,7 +78,7 @@ const Orders = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     setUpdatingStatus(true);
     try {
-      await api.put(`/orders/${orderId}/status`, { status: newStatus });
+      await api.post(`/orders/${orderId}/status`, { status: newStatus });
       fetchOrders();
       setSelectedOrder(prev => prev ? { ...prev, orderStatus: newStatus } : null);
     } catch (err) {
@@ -93,13 +93,13 @@ const Orders = () => {
     if (!order) return null;
 
     return (
-      <div style={{ 
-        position: 'fixed', 
-        top: 0, 
-        right: 0, 
-        width: '500px', 
-        height: '100vh', 
-        background: 'var(--bg-dark)', 
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        width: '500px',
+        height: '100vh',
+        background: 'var(--bg-dark)',
         borderLeft: '1px solid var(--border-color)',
         boxShadow: '-20px 0 50px rgba(0,0,0,0.5)',
         zIndex: 1000,
@@ -142,10 +142,10 @@ const Orders = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{ fontSize: '14px', fontWeight: 600 }}>{order.userId?.name || 'Guest'}</div>
-                  <span style={{ 
-                    fontSize: '10px', 
-                    padding: '2px 8px', 
-                    borderRadius: '8px', 
+                  <span style={{
+                    fontSize: '10px',
+                    padding: '2px 8px',
+                    borderRadius: '8px',
                     background: order.userId?.role === 'b2b' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(236, 72, 153, 0.1)',
                     color: order.userId?.role === 'b2b' ? '#6366f1' : '#ec4899',
                     fontWeight: 700,
@@ -169,10 +169,10 @@ const Orders = () => {
 
             {/* Driver Info */}
             {(order.driverId || order.deliveryBoyId) && (
-              <div style={{ 
+              <div style={{
                 marginTop: '12px',
-                padding: '16px', 
-                background: 'rgba(99, 102, 241, 0.05)', 
+                padding: '16px',
+                background: 'rgba(99, 102, 241, 0.05)',
                 borderRadius: '16px',
                 border: '1px solid rgba(99, 102, 241, 0.1)'
               }}>
@@ -207,26 +207,30 @@ const Orders = () => {
           <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Items Summary</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {order.items?.map((item, idx) => (
-              <div key={idx} style={{ 
-                display: 'flex', 
-                gap: '12px', 
+              <div key={idx} style={{
+                display: 'flex',
+                gap: '12px',
                 alignItems: 'center',
                 padding: '12px',
                 background: 'rgba(255,255,255,0.02)',
                 borderRadius: '12px',
                 border: '1px solid rgba(255,255,255,0.05)'
               }}>
-                <img 
-                  src={getImageUrl(item.image)} 
-                  alt="" 
-                  style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} 
+                <img
+                  src={getImageUrl(item.image)}
+                  alt=""
+                  style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }}
                   onError={(e) => e.target.src = 'https://via.placeholder.com/48'}
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>{item.name}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Qty: {item.quantity} × ₹{item.price}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
+                    Qty: {item.quantity} × ₹{item.netPrice !== undefined ? item.netPrice : item.price}
+                  </div>
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>₹{item.quantity * item.price}</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
+                  ₹{item.netTotal !== undefined ? item.netTotal : (item.quantity * item.price)}
+                </div>
               </div>
             ))}
           </div>
@@ -255,13 +259,13 @@ const Orders = () => {
     const orderIdStr = order.orderId || order._id.slice(-6).toUpperCase();
     const customerName = order.userId?.name || 'Guest';
     const matchesSearch = orderIdStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          customerName.toLowerCase().includes(searchTerm.toLowerCase());
+      customerName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || (order.orderStatus || 'Pending') === statusFilter;
-    
+
     // Order Type Filter (B2B / B2C)
-    const matchesType = orderTypeFilter === 'All' || 
-                        (orderTypeFilter === 'B2B' && order.userId?.role === 'b2b') ||
-                        (orderTypeFilter === 'B2C' && order.userId?.role === 'b2c');
+    const matchesType = orderTypeFilter === 'All' ||
+      (orderTypeFilter === 'B2B' && order.userId?.role === 'b2b') ||
+      (orderTypeFilter === 'B2C' && order.userId?.role === 'b2c');
 
     // Date Filtering
     let matchesDate = true;
@@ -269,12 +273,12 @@ const Orders = () => {
       const orderDate = new Date(order.createdAt);
       if (dateRange.start) {
         const start = new Date(dateRange.start);
-        start.setHours(0,0,0,0);
+        start.setHours(0, 0, 0, 0);
         matchesDate = matchesDate && orderDate >= start;
       }
       if (dateRange.end) {
         const end = new Date(dateRange.end);
-        end.setHours(23,59,59,999);
+        end.setHours(23, 59, 59, 999);
         matchesDate = matchesDate && orderDate <= end;
       }
     }
@@ -295,10 +299,10 @@ const Orders = () => {
           }
         `}
       </style>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: '32px',
         flexWrap: 'wrap',
         gap: '20px'
@@ -307,40 +311,40 @@ const Orders = () => {
           <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)' }}>Orders</h1>
           <p style={{ color: 'var(--text-dim)' }}>Monitor and manage your customer orders.</p>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            alignItems: 'center', 
-            background: 'white', 
-            padding: '8px 16px', 
-            borderRadius: '12px', 
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+            background: 'white',
+            padding: '8px 16px',
+            borderRadius: '12px',
             border: '1px solid #e2e8f0',
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
           }}>
             <Calendar size={16} color="#64748b" />
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
               style={{ background: 'transparent', border: 'none', color: '#1e293b', fontSize: '13px', outline: 'none', fontWeight: '500' }}
             />
             <span style={{ color: '#94a3b8', fontWeight: '500' }}>to</span>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
               style={{ background: 'transparent', border: 'none', color: '#1e293b', fontSize: '13px', outline: 'none', fontWeight: '500' }}
             />
           </div>
 
-          <button 
+          <button
             onClick={exportToExcel}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px', 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
               padding: '10px 20px',
               borderRadius: '12px',
               background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
@@ -357,12 +361,12 @@ const Orders = () => {
             <Download size={18} />
             Export Excel
           </button>
-          <button 
+          <button
             onClick={handlePrint}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px', 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
               padding: '10px 20px',
               borderRadius: '12px',
               background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
@@ -385,24 +389,24 @@ const Orders = () => {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }} className="no-print">
         <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
           <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-          <input 
-            type="text" 
-            placeholder="Search orders..." 
+          <input
+            type="text"
+            placeholder="Search orders..."
             className="input-field"
             style={{ paddingLeft: '48px' }}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
           {/* Order Type Filter */}
           <div style={{ display: 'flex', gap: '4px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
             {['All', 'B2B', 'B2C'].map(type => (
-              <button 
+              <button
                 key={type}
                 onClick={() => setOrderTypeFilter(type)}
-                style={{ 
+                style={{
                   padding: '8px 16px',
                   borderRadius: '10px',
                   border: 'none',
@@ -423,10 +427,10 @@ const Orders = () => {
           {/* Status Filter */}
           <div style={{ display: 'flex', gap: '8px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)', overflowX: 'auto' }} className="hide-scrollbar">
             {['All', 'Pending', 'Processing', 'Packed'].map(s => (
-              <button 
+              <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                style={{ 
+                style={{
                   padding: '8px 16px',
                   borderRadius: '10px',
                   border: 'none',
@@ -485,10 +489,10 @@ const Orders = () => {
                 <td style={{ padding: '16px 24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)' }}>{order.userId?.name || 'Guest'}</div>
-                    <span style={{ 
-                      fontSize: '9px', 
-                      padding: '2px 6px', 
-                      borderRadius: '6px', 
+                    <span style={{
+                      fontSize: '9px',
+                      padding: '2px 6px',
+                      borderRadius: '6px',
                       background: order.userId?.role === 'b2b' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(236, 72, 153, 0.1)',
                       color: order.userId?.role === 'b2b' ? '#6366f1' : '#ec4899',
                       fontWeight: 800,
@@ -503,7 +507,7 @@ const Orders = () => {
                   {order.items?.length || 0} items
                 </td>
                 <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600 }}>
-                  ₹{order.totalAmount || 0}
+                  ₹{order.totalAmountWithoutCommissions !== undefined ? order.totalAmountWithoutCommissions : (order.sellerItemsNetTotal !== undefined ? order.sellerItemsNetTotal : order.totalAmount)}
                 </td>
                 <td style={{ padding: '16px 24px' }}>
                   <StatusBadge status={order.orderStatus} />
@@ -512,21 +516,21 @@ const Orders = () => {
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
                     {(order.orderStatus === 'Pending' || !order.orderStatus) && (
                       <>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             updateOrderStatus(order._id, 'Packed');
                           }}
                           disabled={updatingStatus}
                           title="Accept & Mark as Packed"
-                          style={{ 
-                            padding: '8px 12px', 
-                            background: '#10b981', 
-                            color: 'white', 
-                            border: 'none', 
-                            borderRadius: '8px', 
-                            cursor: 'pointer', 
-                            fontSize: '11px', 
+                          style={{
+                            padding: '8px 12px',
+                            background: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '11px',
                             fontWeight: 700,
                             display: 'flex',
                             alignItems: 'center',
@@ -535,21 +539,21 @@ const Orders = () => {
                         >
                           <Check size={14} /> Accept
                         </button>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             updateOrderStatus(order._id, 'Rejected by Seller');
                           }}
                           disabled={updatingStatus}
                           title="Reject Order"
-                          style={{ 
-                            padding: '8px 12px', 
-                            background: '#ef4444', 
-                            color: 'white', 
-                            border: 'none', 
-                            borderRadius: '8px', 
-                            cursor: 'pointer', 
-                            fontSize: '11px', 
+                          style={{
+                            padding: '8px 12px',
+                            background: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '11px',
                             fontWeight: 700,
                             display: 'flex',
                             alignItems: 'center',
@@ -560,7 +564,7 @@ const Orders = () => {
                         </button>
                       </>
                     )}
-                    <button 
+                    <button
                       onClick={() => setSelectedOrder(order)}
                       title="View Details"
                       style={{ padding: '8px', borderRadius: '8px', background: 'var(--glass-bg)', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}
@@ -586,9 +590,9 @@ const Orders = () => {
             No orders found yet.
           </div>
         ) : filteredOrders.map((order) => (
-          <div 
-            key={order._id} 
-            className="glass-card" 
+          <div
+            key={order._id}
+            className="glass-card"
             style={{ padding: '16px', borderRadius: '20px' }}
             onClick={() => setSelectedOrder(order)}
           >
@@ -601,7 +605,7 @@ const Orders = () => {
                 <div style={{ fontWeight: 600, fontSize: '15px' }}>{order.userId?.name || 'Guest'}</div>
                 <div style={{ fontSize: '12px', color: '#64748b' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
               </div>
-              <div style={{ fontWeight: 700, fontSize: '16px' }}>₹{order.totalAmount}</div>
+              <div style={{ fontWeight: 700, fontSize: '16px' }}>₹{order.totalAmountWithoutCommissions !== undefined ? order.totalAmountWithoutCommissions : (order.sellerItemsNetTotal !== undefined ? order.sellerItemsNetTotal : order.totalAmount)}</div>
             </div>
             <div style={{ fontSize: '12px', color: '#94a3b8' }}>{order.items?.length} items</div>
           </div>
@@ -609,17 +613,17 @@ const Orders = () => {
       </div>
 
       {selectedOrder && (
-        <div style={{ 
-          position: 'fixed', 
-          inset: 0, 
-          background: 'rgba(0,0,0,0.5)', 
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
           backdropFilter: 'blur(4px)',
-          zIndex: 999 
+          zIndex: 999
         }} onClick={() => setSelectedOrder(null)}>
           <div onClick={e => e.stopPropagation()}>
-            <OrderDetailPanel 
-              order={selectedOrder} 
-              onClose={() => setSelectedOrder(null)} 
+            <OrderDetailPanel
+              order={selectedOrder}
+              onClose={() => setSelectedOrder(null)}
             />
           </div>
         </div>

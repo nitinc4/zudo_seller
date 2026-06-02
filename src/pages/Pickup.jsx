@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
-import { 
-  Truck, 
-  Search, 
-  Filter, 
-  ExternalLink, 
-  ShoppingBag, 
-  Clock, 
-  CheckCircle, 
-  User, 
+import {
+  Truck,
+  Search,
+  Filter,
+  ExternalLink,
+  ShoppingBag,
+  Clock,
+  CheckCircle,
+  User,
   Phone,
   MapPin,
   XCircle,
@@ -26,13 +26,13 @@ const StatusBadge = ({ status }) => {
   const Icon = config.icon;
 
   return (
-    <span style={{ 
+    <span style={{
       display: 'flex',
       alignItems: 'center',
       gap: '6px',
-      padding: '4px 12px', 
-      borderRadius: '20px', 
-      fontSize: '11px', 
+      padding: '4px 12px',
+      borderRadius: '20px',
+      fontSize: '11px',
       fontWeight: 700,
       background: config.bg,
       color: config.color,
@@ -210,9 +210,9 @@ const Pickup = () => {
             </table>
             
             ${(() => {
-              const itemsSubtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-              const otherCharges = order.totalAmount - itemsSubtotal;
-              return `
+        const itemsSubtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const otherCharges = order.totalAmount - itemsSubtotal;
+        return `
                 <div class="summary">
                   <div class="summary-row">
                     <span class="summary-label">Items Subtotal</span>
@@ -234,7 +234,7 @@ const Pickup = () => {
                   </div>
                 </div>
               `;
-            })()}
+      })()}
 
             <div class="signature-section">
               <div class="sign-container">
@@ -263,7 +263,7 @@ const Pickup = () => {
     if (!window.confirm('Mark this order as Picked Up?')) return;
     setUpdatingStatus(true);
     try {
-      await api.put(`/orders/${orderId}/status`, { status: 'Picked Up' });
+      await api.post(`/orders/${orderId}/status`, { status: 'Picked Up' });
       fetchOrders();
     } catch (err) {
       console.error('Failed to update status:', err);
@@ -278,8 +278,8 @@ const Pickup = () => {
     const customerName = order.userId?.name || 'Guest';
     const driverName = order.deliveryBoyId?.name || '';
     return orderIdStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           driverName.toLowerCase().includes(searchTerm.toLowerCase());
+      customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      driverName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
@@ -293,9 +293,9 @@ const Pickup = () => {
 
       <div style={{ flex: 1, position: 'relative', marginBottom: '24px' }}>
         <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
-        <input 
-          type="text" 
-          placeholder="Search by Order ID, Customer, or Driver..." 
+        <input
+          type="text"
+          placeholder="Search by Order ID, Customer, or Driver..."
           className="input-field"
           style={{ paddingLeft: '48px' }}
           value={searchTerm}
@@ -320,7 +320,7 @@ const Pickup = () => {
                 <div style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: 600, marginBottom: '4px' }}>ORDER ID</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{ fontWeight: 700, color: 'var(--primary)' }}>#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
-                  <button 
+                  <button
                     onClick={() => generatePickupSlip(order)}
                     style={{ background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: '#6366f1', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
@@ -332,10 +332,10 @@ const Pickup = () => {
             </div>
 
             {/* Driver Section */}
-            <div style={{ 
-              background: 'rgba(99, 102, 241, 0.05)', 
-              border: '1px solid rgba(99, 102, 241, 0.1)', 
-              borderRadius: '16px', 
+            <div style={{
+              background: 'rgba(99, 102, 241, 0.05)',
+              border: '1px solid rgba(99, 102, 241, 0.1)',
+              borderRadius: '16px',
               padding: '16px',
               marginBottom: '20px'
             }}>
@@ -390,17 +390,17 @@ const Pickup = () => {
 
             {/* Actions */}
             {order.orderStatus === 'Packed' && (
-              <button 
+              <button
                 onClick={() => handleMarkPickedUp(order._id)}
                 disabled={updatingStatus}
-                style={{ 
-                  width: '100%', 
-                  padding: '12px', 
-                  borderRadius: '12px', 
-                  background: '#6366f1', 
-                  color: 'white', 
-                  border: 'none', 
-                  fontWeight: 700, 
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  background: '#6366f1',
+                  color: 'white',
+                  border: 'none',
+                  fontWeight: 700,
                   fontSize: '14px',
                   cursor: 'pointer',
                   display: 'flex',
@@ -414,15 +414,15 @@ const Pickup = () => {
                 Mark as Picked Up
               </button>
             )}
-            
+
             {order.orderStatus === 'Picked Up' && (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '12px', 
-                borderRadius: '12px', 
-                background: 'rgba(34, 197, 94, 0.1)', 
-                color: '#22c55e', 
-                fontSize: '14px', 
+              <div style={{
+                textAlign: 'center',
+                padding: '12px',
+                borderRadius: '12px',
+                background: 'rgba(34, 197, 94, 0.1)',
+                color: '#22c55e',
+                fontSize: '14px',
                 fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',

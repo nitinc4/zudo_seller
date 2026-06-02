@@ -71,7 +71,7 @@ const CompleteProfile = () => {
   const DocumentUpload = ({ label, field, value }) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>{label}</label>
-      <div style={{ 
+      <div style={{
         position: 'relative',
         height: '120px',
         border: '2px dashed rgba(255,255,255,0.1)',
@@ -84,10 +84,10 @@ const CompleteProfile = () => {
         cursor: 'pointer',
         transition: 'all 0.3s ease'
       }} onClick={() => document.getElementById(field).click()}>
-        <input 
-          type="file" 
-          id={field} 
-          hidden 
+        <input
+          type="file"
+          id={field}
+          hidden
           onChange={(e) => handleFileUpload(e, field)}
           accept=".pdf,image/*"
         />
@@ -110,7 +110,7 @@ const CompleteProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation for mandatory documents
     if (!formData.storePic) {
       alert('Please upload your Store Logo/Picture');
@@ -155,26 +155,26 @@ const CompleteProfile = () => {
               <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Store size={16} /> Store/Seller Name
               </label>
-              <input 
-                type="text" 
-                className="input-field" 
-                placeholder="e.g. Trendy Collections" 
-                required 
+              <input
+                type="text"
+                className="input-field"
+                placeholder="e.g. Trendy Collections"
+                required
                 value={formData.storeName}
-                onChange={e => setFormData({...formData, storeName: e.target.value})}
+                onChange={e => setFormData({ ...formData, storeName: e.target.value })}
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Phone size={16} /> Contact Phone Number
               </label>
-              <input 
-                type="tel" 
-                className="input-field" 
-                placeholder="e.g. +91 9876543210" 
-                required 
+              <input
+                type="tel"
+                className="input-field"
+                placeholder="e.g. +91 9876543210"
+                required
                 value={formData.phone}
-                onChange={e => setFormData({...formData, phone: e.target.value})}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
               />
             </div>
           </div>
@@ -183,13 +183,13 @@ const CompleteProfile = () => {
             <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Building2 size={16} /> Billing Address
             </label>
-            <textarea 
-              className="input-field" 
+            <textarea
+              className="input-field"
               style={{ minHeight: '100px', resize: 'vertical' }}
-              placeholder="Enter your full billing address" 
-              required 
+              placeholder="Enter your full billing address"
+              required
               value={formData.billingAddress}
-              onChange={e => setFormData({...formData, billingAddress: e.target.value})}
+              onChange={e => setFormData({ ...formData, billingAddress: e.target.value })}
             />
           </div>
 
@@ -198,17 +198,17 @@ const CompleteProfile = () => {
               <MapPin size={16} /> Pickup Location (Select on Map)
             </label>
             <div style={{ position: 'relative' }}>
-              <MapPicker 
-                apiKey={MAPS_API_KEY} 
-                onLocationSelect={handleLocationSelect} 
-                initialLocation={formData.pickupLocation} 
+              <MapPicker
+                apiKey={MAPS_API_KEY}
+                onLocationSelect={handleLocationSelect}
+                initialLocation={formData.pickupLocation}
               />
-              <div style={{ 
-                position: 'absolute', 
-                bottom: '16px', 
-                left: '16px', 
-                background: 'rgba(15, 23, 42, 0.8)', 
-                padding: '12px 16px', 
+              <div style={{
+                position: 'absolute',
+                bottom: '16px',
+                left: '16px',
+                background: 'rgba(15, 23, 42, 0.8)',
+                padding: '12px 16px',
                 borderRadius: '12px',
                 fontSize: '12px',
                 backdropFilter: 'blur(4px)',
@@ -218,14 +218,14 @@ const CompleteProfile = () => {
                 <div style={{ fontWeight: 600 }}>{formData.pickupLocation.lat.toFixed(6)}, {formData.pickupLocation.lng.toFixed(6)}</div>
               </div>
             </div>
-            <input 
-              type="text" 
-              className="input-field" 
-              placeholder="Specific pickup address/instructions" 
-              required 
+            <input
+              type="text"
+              className="input-field"
+              placeholder="Specific pickup address/instructions"
+              required
               value={formData.pickupLocation.address}
               onChange={e => setFormData({
-                ...formData, 
+                ...formData,
                 pickupLocation: { ...formData.pickupLocation, address: e.target.value }
               })}
             />

@@ -113,10 +113,10 @@ const Settings = () => {
   return (
     <Layout>
       <div style={{ maxWidth: '1000px' }}>
-        <header style={{ 
-          marginBottom: '40px', 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <header style={{
+          marginBottom: '40px',
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'flex-start',
           flexWrap: 'wrap',
           gap: '20px'
@@ -126,9 +126,9 @@ const Settings = () => {
             <p style={{ color: 'var(--text-dim)' }}>View and manage your professional profile.</p>
           </div>
           {!isEditing ? (
-            <button 
+            <button
               onClick={() => setIsEditing(true)}
-              className="btn-primary" 
+              className="btn-primary"
               style={{ padding: '12px 24px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid #6366f1', color: '#6366f1', width: 'auto' }}
             >
               <Edit3 size={18} />
@@ -136,12 +136,12 @@ const Settings = () => {
             </button>
           ) : (
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button 
+              <button
                 onClick={() => {
                   setIsEditing(false);
                   setFormData(profile);
                 }}
-                className="btn-primary" 
+                className="btn-primary"
                 style={{ padding: '12px 24px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444', width: 'auto' }}
               >
                 <X size={18} />
@@ -164,20 +164,20 @@ const Settings = () => {
               <User size={18} color="var(--primary)" />
               Store Profile
             </h2>
-            
+
             {isEditing ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Full Name</label>
-                  <input type="text" className="input-field" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                  <input type="text" className="input-field" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Store Name</label>
-                  <input type="text" className="input-field" value={formData.storeName} onChange={e => setFormData({...formData, storeName: e.target.value})} required />
+                  <input type="text" className="input-field" value={formData.storeName} onChange={e => setFormData({ ...formData, storeName: e.target.value })} required />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Phone Number</label>
-                  <input type="tel" className="input-field" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} required />
+                  <input type="tel" className="input-field" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
                 </div>
               </div>
             ) : (
@@ -200,15 +200,15 @@ const Settings = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Billing Address</label>
-                  <textarea className="input-field" style={{ minHeight: '100px' }} value={formData.billingAddress} onChange={e => setFormData({...formData, billingAddress: e.target.value})} required />
+                  <textarea className="input-field" style={{ minHeight: '100px' }} value={formData.billingAddress} onChange={e => setFormData({ ...formData, billingAddress: e.target.value })} required />
                 </div>
-                
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-dim)' }}>Pickup Location (Map)</label>
                   <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)', height: '300px' }}>
                     <MapPicker apiKey={MAPS_API_KEY} onLocationSelect={handleLocationSelect} initialLocation={formData.pickupLocation} />
                   </div>
-                  <input type="text" className="input-field" value={formData.pickupLocation.address} onChange={e => setFormData({...formData, pickupLocation: { ...formData.pickupLocation, address: e.target.value }})} required placeholder="Specific address..." />
+                  <input type="text" className="input-field" value={formData.pickupLocation.address} onChange={e => setFormData({ ...formData, pickupLocation: { ...formData.pickupLocation, address: e.target.value } })} required placeholder="Specific address..." />
                 </div>
               </div>
             ) : (
