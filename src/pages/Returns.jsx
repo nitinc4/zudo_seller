@@ -31,6 +31,16 @@ const Returns = () => {
            customerName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
+  const handleItemReturnAction = async (orderId, itemId, status) => {
+    try {
+      await api.put(`/orders/${orderId}/items/${itemId}/return-status`, { status });
+      fetchReturns();
+      setSelectedOrder(null);
+    } catch (error) {
+      alert('Failed to update return status');
+    }
+  };
+
   const ReturnDetailPanel = ({ order, onClose }) => {
     if (!order) return null;
 
@@ -55,25 +65,6 @@ const Returns = () => {
           </button>
         </div>
 
-        <div className="glass-card" style={{ padding: '24px', borderRadius: '20px', marginBottom: '24px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#ef4444', marginBottom: '16px' }}>
-            <AlertCircle size={20} />
-            <span style={{ fontWeight: 700 }}>RETURN REQUEST</span>
-          </div>
-          <div style={{ fontSize: '14px', color: 'var(--text-main)', marginBottom: '8px', fontWeight: 600 }}>Reason:</div>
-          <div style={{ fontSize: '14px', color: 'var(--text-dim)', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', marginBottom: '16px' }}>
-            {order.returnReason || 'No reason provided'}
-          </div>
-          {order.returnComment && (
-            <>
-              <div style={{ fontSize: '14px', color: 'var(--text-main)', marginBottom: '8px', fontWeight: 600 }}>Comment:</div>
-              <div style={{ fontSize: '14px', color: 'var(--text-dim)', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
-                {order.returnComment}
-              </div>
-            </>
-          )}
-        </div>
-
         <div className="glass-card" style={{ padding: '24px', borderRadius: '20px', marginBottom: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div>
@@ -96,25 +87,73 @@ const Returns = () => {
                 <div style={{ fontSize: '12px', color: '#64748b' }}>{order.userId?.phone}</div>
               </div>
             </div>
+            
+
           </div>
         </div>
 
         <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Items to Return</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {order.items?.map((item, idx) => (
+          {order.items?.filter(item => item.returnStatus && item.returnStatus !== 'None').map((item, idx) => (
             <div key={idx} style={{ 
               display: 'flex', 
+              flexDirection: 'column',
               gap: '12px', 
-              alignItems: 'center',
-              padding: '12px',
-              background: 'rgba(255,255,255,0.02)',
-              borderRadius: '12px'
+              padding: '16px',
+              background: 'rgba(245, 158, 11, 0.05)',
+              border: '1px dashed #f59e0b',
+              borderRadius: '16px'
             }}>
-              <img src={getImageUrl(item.image)} alt="" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 600 }}>{item.name}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Qty: {item.quantity} × ₹{item.price}</div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <img src={getImageUrl(item.image)} alt="" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600 }}>{item.name}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-dim)' }}>Qty: {item.quantity} × ₹{item.price}</div>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#f59e0b', marginTop: '4px' }}>Status: {item.returnStatus.toUpperCase()}</div>
+                </div>
               </div>
+              
+              <div style={{ fontSize: '13px', color: 'var(--text-dim)', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+                <strong style={{ color: 'var(--text-main)' }}>Reason:</strong> {item.returnReason || 'No reason provided'}
+                {item.returnComment && <div style={{ marginTop: '8px' }}><strong style={{ color: 'var(--text-main)' }}>Comment:</strong> {item.returnComment}</div>}
+                
+                {item.refundBankName && (
+                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px' }}>Refund Bank Details</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div><strong style={{ color: 'var(--text-main)' }}>Bank:</strong> {item.refundBankName}</div>
+                      <div><strong style={{ color: 'var(--text-main)' }}>A/C Name:</strong> {item.refundAccountName}</div>
+                      <div><strong style={{ color: 'var(--text-main)' }}>A/C No:</strong> {item.refundAccountNumber}</div>
+                      <div><strong style={{ color: 'var(--text-main)' }}>IFSC:</strong> {item.refundIfscCode}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {item.returnImage && (
+                <a href={getImageUrl(item.returnImage)} target="_blank" rel="noopener noreferrer">
+                  <img src={getImageUrl(item.returnImage)} alt="Return proof" style={{ width: '100px', height: '100px', borderRadius: '8px', objectFit: 'cover' }} />
+                </a>
+              )}
+              
+              {item.returnStatus === 'Return Requested' && (
+                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                  <button 
+                    onClick={() => handleItemReturnAction(order._id, item._id, 'Return Approved')} 
+                    className="btn-primary" 
+                    style={{ flex: 1, padding: '8px', fontSize: '12px', background: '#10b981' }}
+                  >
+                    Approve
+                  </button>
+                  <button 
+                    onClick={() => handleItemReturnAction(order._id, item._id, 'Return Rejected')} 
+                    className="btn-primary" 
+                    style={{ flex: 1, padding: '8px', fontSize: '12px', background: '#ef4444' }}
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -177,7 +216,11 @@ const Returns = () => {
                   <div style={{ fontSize: '14px', fontWeight: 500 }}>{order.userId?.name || 'Guest'}</div>
                 </td>
                 <td style={{ padding: '16px 24px' }}>
-                  <div style={{ fontSize: '13px', color: '#ef4444', fontWeight: 600 }}>{order.returnReason || 'Reason not specified'}</div>
+                  <div style={{ fontSize: '13px', color: '#ef4444', fontWeight: 600 }}>
+                    {order.items && order.items.length > 0 
+                      ? (order.items[0].returnReason || 'Reason not specified') 
+                      : 'Reason not specified'}
+                  </div>
                 </td>
                 <td style={{ padding: '16px 24px' }}>
                   <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>

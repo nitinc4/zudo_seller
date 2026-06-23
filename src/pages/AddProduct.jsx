@@ -18,13 +18,14 @@ const AddProduct = () => {
     name: '',
     categoryId: '',
     subCategoryId: '',
-    price: '0',
-    b2bPrice: '0',
+    price: '',
+    b2bPrice: '',
     gstPercent: 0,
     moq: 1,
     unit: 'pcs',
     sellerId: '',
     stock: 0,
+    sku: '',
     description: '',
     image: null,
     pdf: null
@@ -39,6 +40,13 @@ const AddProduct = () => {
         ]);
         setCategories(cats.data);
         setSellers(sells.data);
+        
+        // Auto-populate logged-in seller's ID
+        const storedUserStr = localStorage.getItem('zudo_seller_user');
+        const storedUser = storedUserStr ? JSON.parse(storedUserStr) : {};
+        if (storedUser && storedUser._id) {
+          setFormData(prev => ({ ...prev, sellerId: storedUser._id }));
+        }
       } catch (err) {
         console.error('Failed to fetch required data', err);
         setError('Failed to load categories or sellers');
@@ -202,7 +210,7 @@ const AddProduct = () => {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Assign Seller</label>
-              <select name="sellerId" className="input-field" value={formData.sellerId} onChange={handleInputChange}>
+              <select name="sellerId" className="input-field" value={formData.sellerId} onChange={handleInputChange} disabled={formData.sellerId !== ''}>
                 <option value="">Select Seller (Optional)</option>
                 {sellers.map(seller => (
                   <option key={seller._id} value={seller._id}>{seller.storeName || seller.businessName || seller.name}</option>
@@ -219,6 +227,18 @@ const AddProduct = () => {
           <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', color: '#e2e8f0' }}>Pricing & Inventory</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
 
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>B2C Price (Base ₹) *</label>
+              <input type="number" name="price" className="input-field" value={formData.price} onChange={handleInputChange} required min="0" step="0.01" placeholder="0.00" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>B2B Price (Base ₹) *</label>
+              <input type="number" name="b2bPrice" className="input-field" value={formData.b2bPrice} onChange={handleInputChange} required min="0" step="0.01" placeholder="0.00" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>SKU (Optional)</label>
+              <input type="text" name="sku" className="input-field" value={formData.sku} onChange={handleInputChange} placeholder="SKU-XYZ-001" />
+            </div>
             <div>
               <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '8px', fontWeight: 500 }}>Stock Quantity *</label>
               <input type="number" name="stock" className="input-field" value={formData.stock} onChange={handleInputChange} required min="0" />

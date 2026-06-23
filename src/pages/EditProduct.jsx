@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api, { uploadApi, IMAGE_BASE_URL, getImageUrl } from '../utils/api';
-import { 
-  Package, 
-  ChevronLeft, 
-  Upload, 
-  Save, 
-  X, 
-  Info, 
-  Tag, 
-  IndianRupee, 
+import {
+  Package,
+  ChevronLeft,
+  Upload,
+  Save,
+  X,
+  Info,
+  Tag,
+  IndianRupee,
   Layers,
   FileText,
   Boxes,
@@ -33,7 +33,7 @@ const EditProduct = () => {
     subCategoryId: '',
     stock: '',
     sku: '',
-    gstRate: '0',
+    gstPercent: '0',
     sellerId: '',
     imageUrl: '',
     pdfUrl: ''
@@ -69,7 +69,7 @@ const EditProduct = () => {
           subCategoryId: p.subCategoryId?._id || p.subCategoryId || '',
           stock: p.stock || '',
           sku: p.sku || '',
-          gstRate: p.gstRate !== undefined ? String(p.gstRate) : '0',
+          gstPercent: p.gstPercent !== undefined ? String(p.gstPercent) : '0',
           sellerId: p.sellerId || '',
           imageUrl: p.imageUrl || '',
           pdfUrl: p.pdfUrl || ''
@@ -106,7 +106,7 @@ const EditProduct = () => {
         setB2bVariants(parsedB2b);
         setB2cVariants(parsedB2c);
         if (p.imageUrl) {
-            setPreviews(prev => ({ ...prev, image: getImageUrl(p.imageUrl) }));
+          setPreviews(prev => ({ ...prev, image: getImageUrl(p.imageUrl) }));
         }
       } catch (err) {
         console.error('Failed to fetch data:', err);
@@ -180,7 +180,7 @@ const EditProduct = () => {
         imageUrl,
         pdfUrl: formData.pdfUrl // Keep existing or empty
       });
-      
+
       navigate('/products');
     } catch (err) {
       console.error('Update error:', err);
@@ -200,14 +200,14 @@ const EditProduct = () => {
 
   const selectedCategory = categories.find(c => String(c._id) === String(formData.categoryId));
 
-  const gstRateNum = Number(formData.gstRate) || 0;
-  
+  const gstPercentNum = Number(formData.gstPercent) || 0;
+
   const regularPriceBase = (Number(formData.price) || 0) * calcQuantity;
-  const regularGstAmount = (regularPriceBase * gstRateNum) / 100;
+  const regularGstAmount = (regularPriceBase * gstPercentNum) / 100;
   const regularPriceTotal = regularPriceBase + regularGstAmount;
 
   const b2bPriceBase = (Number(formData.b2bPrice) || 0) * calcQuantity;
-  const b2bGstAmount = (b2bPriceBase * gstRateNum) / 100;
+  const b2bGstAmount = (b2bPriceBase * gstPercentNum) / 100;
   const b2bPriceTotal = b2bPriceBase + b2bGstAmount;
 
   return (
@@ -215,14 +215,14 @@ const EditProduct = () => {
       <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '60px' }}>
         {/* Header Section */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
-          <button 
+          <button
             onClick={() => navigate('/products')}
-            style={{ 
-              width: '45px', 
-              height: '45px', 
-              borderRadius: '15px', 
-              background: 'rgba(255,255,255,0.03)', 
-              border: '1px solid rgba(255,255,255,0.08)', 
+            style={{
+              width: '45px',
+              height: '45px',
+              borderRadius: '15px',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
@@ -240,13 +240,13 @@ const EditProduct = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-          gap: '32px' 
+        <form onSubmit={handleSubmit} style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '32px'
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            
+
             {/* General Information Card */}
             <div className="glass-card" style={{ padding: '35px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
@@ -259,24 +259,24 @@ const EditProduct = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Product Name</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
+                  <input
+                    type="text"
+                    className="input-field"
                     placeholder="e.g. Premium Basmati Rice"
                     value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                     required
                     style={{ fontSize: '16px', padding: '15px 20px' }}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Product Description</label>
-                  <textarea 
-                    className="input-field" 
+                  <textarea
+                    className="input-field"
                     style={{ minHeight: '160px', resize: 'vertical', padding: '15px 20px', fontSize: '15px', lineHeight: '1.6' }}
                     placeholder="Describe the features, benefits, and specifications..."
                     value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
+                    onChange={e => setFormData({ ...formData, description: e.target.value })}
                     required
                   />
                 </div>
@@ -297,13 +297,13 @@ const EditProduct = () => {
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>B2C Price (Base ₹)</label>
                   <div style={{ position: 'relative' }}>
                     <IndianRupee size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                    <input 
-                      type="number" 
-                      className="input-field" 
+                    <input
+                      type="number"
+                      className="input-field"
                       style={{ paddingLeft: '42px' }}
                       placeholder="0.00"
                       value={formData.price}
-                      onChange={e => setFormData({...formData, price: e.target.value})}
+                      onChange={e => setFormData({ ...formData, price: e.target.value })}
                       required
                     />
                   </div>
@@ -312,25 +312,25 @@ const EditProduct = () => {
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>B2B Price (Base ₹)</label>
                   <div style={{ position: 'relative' }}>
                     <IndianRupee size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                    <input 
-                      type="number" 
-                      className="input-field" 
+                    <input
+                      type="number"
+                      className="input-field"
                       style={{ paddingLeft: '42px' }}
                       placeholder="0.00"
                       value={formData.b2bPrice}
-                      onChange={e => setFormData({...formData, b2bPrice: e.target.value})}
+                      onChange={e => setFormData({ ...formData, b2bPrice: e.target.value })}
                       required
                     />
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>GST Rate (%)</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
+                  <input
+                    type="number"
+                    className="input-field"
                     placeholder="e.g. 18"
-                    value={formData.gstRate}
-                    onChange={e => setFormData({...formData, gstRate: e.target.value})}
+                    value={formData.gstPercent}
+                    onChange={e => setFormData({ ...formData, gstPercent: e.target.value })}
                     required
                     min="0"
                     max="100"
@@ -341,23 +341,23 @@ const EditProduct = () => {
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Stock Quantity</label>
                   <div style={{ position: 'relative' }}>
                     <Boxes size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                    <input 
-                      type="number" 
-                      className="input-field" 
+                    <input
+                      type="number"
+                      className="input-field"
                       style={{ paddingLeft: '45px' }}
                       placeholder="0"
                       value={formData.stock}
-                      onChange={e => setFormData({...formData, stock: e.target.value})}
+                      onChange={e => setFormData({ ...formData, stock: e.target.value })}
                       required
                     />
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Unit Type</label>
-                  <select 
-                    className="input-field" 
+                  <select
+                    className="input-field"
                     value={formData.unit}
-                    onChange={e => setFormData({...formData, unit: e.target.value})}
+                    onChange={e => setFormData({ ...formData, unit: e.target.value })}
                     required
                     style={{ height: '50px', cursor: 'pointer' }}
                   >
@@ -370,34 +370,34 @@ const EditProduct = () => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>MOQ</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
+                  <input
+                    type="number"
+                    className="input-field"
                     placeholder="1"
                     value={formData.moq}
-                    onChange={e => setFormData({...formData, moq: e.target.value})}
+                    onChange={e => setFormData({ ...formData, moq: e.target.value })}
                     required
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>SKU (Optional)</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
+                  <input
+                    type="text"
+                    className="input-field"
                     placeholder="SKU-XYZ-001"
                     value={formData.sku}
-                    onChange={e => setFormData({...formData, sku: e.target.value})}
+                    onChange={e => setFormData({ ...formData, sku: e.target.value })}
                   />
                 </div>
               </div>
 
               {/* Pricing Breakdown Hint */}
               {(formData.price || formData.b2bPrice) && (
-                <div style={{ 
-                  marginTop: '25px', 
-                  padding: '24px', 
-                  borderRadius: '20px', 
-                  background: 'rgba(99, 102, 241, 0.05)', 
+                <div style={{
+                  marginTop: '25px',
+                  padding: '24px',
+                  borderRadius: '20px',
+                  background: 'rgba(99, 102, 241, 0.05)',
                   border: '1px solid rgba(99, 102, 241, 0.1)',
                   fontSize: '13px',
                   lineHeight: '1.6',
@@ -412,11 +412,11 @@ const EditProduct = () => {
                       <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b' }}>
                         Simulate Weight/Quantity:
                       </span>
-                      <select 
-                        value={calcQuantity} 
+                      <select
+                        value={calcQuantity}
                         onChange={e => setCalcQuantity(Number(e.target.value))}
-                        style={{ 
-                          background: 'rgba(255,255,255,0.03)', 
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
                           border: '1px solid rgba(255,255,255,0.08)',
                           color: 'white',
                           borderRadius: '8px',
@@ -541,7 +541,7 @@ const EditProduct = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            
+
             {/* Media Card */}
             <div className="glass-card" style={{ padding: '30px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
@@ -552,9 +552,9 @@ const EditProduct = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div 
+                <div
                   onClick={() => document.getElementById('image-upload').click()}
-                  style={{ 
+                  style={{
                     width: '100%',
                     aspectRatio: '1',
                     borderRadius: '24px',
@@ -581,12 +581,12 @@ const EditProduct = () => {
                     </>
                   )}
                   {previews.image && (
-                    <div style={{ 
-                      position: 'absolute', 
-                      inset: 0, 
-                      background: 'rgba(0,0,0,0.4)', 
-                      display: 'flex', 
-                      alignItems: 'center', 
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'rgba(0,0,0,0.4)',
+                      display: 'flex',
+                      alignItems: 'center',
                       justifyContent: 'center',
                       opacity: 0,
                       transition: 'opacity 0.3s'
@@ -611,10 +611,10 @@ const EditProduct = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Category</label>
-                  <select 
+                  <select
                     className="input-field"
                     value={formData.categoryId}
-                    onChange={e => setFormData({...formData, categoryId: e.target.value, subCategoryId: ''})}
+                    onChange={e => setFormData({ ...formData, categoryId: e.target.value, subCategoryId: '' })}
                     required
                     style={{ height: '50px', cursor: 'pointer' }}
                   >
@@ -626,10 +626,10 @@ const EditProduct = () => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Sub-Category</label>
-                  <select 
+                  <select
                     className="input-field"
                     value={formData.subCategoryId}
-                    onChange={e => setFormData({...formData, subCategoryId: e.target.value})}
+                    onChange={e => setFormData({ ...formData, subCategoryId: e.target.value })}
                     disabled={!formData.categoryId}
                     style={{ height: '50px', cursor: 'pointer' }}
                   >
@@ -646,24 +646,24 @@ const EditProduct = () => {
         </form>
 
         {/* Bottom Actions */}
-        <div style={{ 
-          marginTop: '40px', 
-          padding: '24px', 
-          borderRadius: '24px', 
-          background: 'rgba(255,255,255,0.02)', 
+        <div style={{
+          marginTop: '40px',
+          padding: '24px',
+          borderRadius: '24px',
+          background: 'rgba(255,255,255,0.02)',
           border: '1px solid rgba(255,255,255,0.05)',
           display: 'flex',
           justifyContent: 'flex-end',
           gap: '16px',
           flexWrap: 'wrap'
         }}>
-          <button 
+          <button
             onClick={() => navigate('/products')}
-            style={{ 
-              padding: '12px 32px', 
-              borderRadius: '15px', 
-              background: 'transparent', 
-              border: '1px solid rgba(255,255,255,0.1)', 
+            style={{
+              padding: '12px 32px',
+              borderRadius: '15px',
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.1)',
               color: '#94a3b8',
               fontWeight: 600,
               cursor: 'pointer',
@@ -673,9 +673,9 @@ const EditProduct = () => {
           >
             Cancel
           </button>
-          <button 
+          <button
             onClick={handleSubmit}
-            className="btn-primary" 
+            className="btn-primary"
             style={{ padding: '12px 48px', borderRadius: '15px', flex: '2', minWidth: '200px' }}
             disabled={loading}
           >

@@ -260,7 +260,11 @@ const Orders = () => {
     const customerName = order.userId?.name || 'Guest';
     const matchesSearch = orderIdStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customerName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || (order.orderStatus || 'Pending') === statusFilter;
+    const matchesStatus = statusFilter === 'All' 
+      ? true 
+      : statusFilter === 'Returns'
+        ? order.items && order.items.some(i => i.returnStatus && i.returnStatus !== 'None')
+        : order.orderStatus === statusFilter;
 
     // Order Type Filter (B2B / B2C)
     const matchesType = orderTypeFilter === 'All' ||
@@ -426,7 +430,7 @@ const Orders = () => {
 
           {/* Status Filter */}
           <div style={{ display: 'flex', gap: '8px', background: 'var(--glass-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--border-color)', overflowX: 'auto' }} className="hide-scrollbar">
-            {['All', 'Pending', 'Processing', 'Packed'].map(s => (
+            {['All', 'Pending', 'Processing', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled', 'Returns'].map(s => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}

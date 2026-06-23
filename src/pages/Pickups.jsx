@@ -5,7 +5,7 @@ import Layout from '../components/Layout';
 
 const PickupCard = ({ pickup, onGenerateInvoice }) => (
   <div className="glass-card" style={{ padding: '16px', borderRadius: '20px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : '#6366f1' }}></div>
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: pickup.status === 'Out for Delivery' ? '#22c55e' : '#6366f1' }}></div>
     
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
       <div>
@@ -17,13 +17,13 @@ const PickupCard = ({ pickup, onGenerateInvoice }) => (
         borderRadius: '12px', 
         fontSize: '10px', 
         fontWeight: 800,
-        background: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? 'rgba(34, 197, 94, 0.1)' : 
+        background: pickup.status === 'Out for Delivery' ? 'rgba(34, 197, 94, 0.1)' : 
                    pickup.status === 'Pending' ? 'rgba(245, 158, 11, 0.1)' : 
                    'rgba(99, 102, 241, 0.1)',
-        color: (pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : 
+        color: pickup.status === 'Out for Delivery' ? '#22c55e' : 
                pickup.status === 'Pending' ? '#f59e0b' : 
                '#6366f1',
-        border: `1px solid ${(pickup.status === 'Picked Up' || pickup.status === 'Shipped') ? '#22c55e' : pickup.status === 'Pending' ? '#f59e0b' : '#6366f1'}20`
+        border: `1px solid ${pickup.status === 'Out for Delivery' ? '#22c55e' : pickup.status === 'Pending' ? '#f59e0b' : '#6366f1'}20`
       }}>
         {(pickup.status || 'Pending').toUpperCase()}
       </span>
@@ -241,6 +241,7 @@ const Pickups = () => {
                 <p style="color: #0f172a; font-weight: 700;">${sellerName}</p>
                 <p>${sellerAddress}</p>
                 <p>📞 ${sellerPhone}</p>
+                ${seller?.gstNumber ? `<p><strong>GSTIN:</strong> ${seller.gstNumber}</p>` : ''}
               </div>
               <div class="info-box" style="text-align: right;">
                 <h3>To (Customer)</h3>

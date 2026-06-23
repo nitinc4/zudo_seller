@@ -7,9 +7,11 @@ import Layout from '../components/Layout';
 const ProductDetailModal = ({ product, onClose }) => {
   if (!product) return null;
 
-  const gstRate = product.gstRate || 0;
-  const regularTotal = product.price + (product.price * gstRate) / 100;
-  const b2bTotal = (product.b2bPrice || 0) + ((product.b2bPrice || 0) * gstRate) / 100;
+  const gstRate = product.gstRate || product.gstPercent || 0;
+  const retailPriceBase = product.price || (product.b2c && product.b2c.length > 0 ? product.b2c[0].price : 0);
+  const b2bPriceBase = product.b2bPrice || (product.b2b && product.b2b.length > 0 ? product.b2b[0].price : 0);
+  const regularTotal = retailPriceBase + (retailPriceBase * gstRate) / 100;
+  const b2bTotal = b2bPriceBase + (b2bPriceBase * gstRate) / 100;
 
   return (
     <div style={{
@@ -120,16 +122,16 @@ const ProductDetailModal = ({ product, onClose }) => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
               <div style={{ padding: '16px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '6px', letterSpacing: '0.5px' }}>RETAIL PRICE (BASE)</div>
-                <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-main)' }}>₹{product.price}</div>
+                <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-main)' }}>₹{retailPriceBase}</div>
                 <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginTop: '2px' }}>
                   Incl. {gstRate}% GST: ₹{regularTotal.toFixed(2)}
                 </div>
               </div>
               <div style={{ padding: '16px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 700, marginBottom: '6px', letterSpacing: '0.5px' }}>B2B PRICE (BASE)</div>
-                <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-main)' }}>₹{product.b2bPrice || 0}</div>
+                <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-main)' }}>₹{b2bPriceBase}</div>
                 <div style={{ fontSize: '11px', color: '#ec4899', fontWeight: 600, marginTop: '2px' }}>
-                  Incl. {gstRate}% GST: ₹{b2Total.toFixed(2)}
+                  Incl. {gstRate}% GST: ₹{b2bTotal.toFixed(2)}
                 </div>
               </div>
               <div style={{ padding: '16px', background: 'var(--glass-bg)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
@@ -368,66 +370,71 @@ const Products = () => {
                   No products found. Start by adding one!
                 </td>
               </tr>
-            ) : filteredProducts.map((product) => (
-              <tr key={product._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }} className="table-row-hover">
-                <td style={{ padding: '16px 24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                      <img 
-                        src={getImageUrl(product.imageUrl)} 
-                        alt="" 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        onError={(e) => e.target.src = 'https://via.placeholder.com/48'}
-                      />
+            ) : filteredProducts.map((product) => {
+              const displayPrice = product.price || (product.b2c && product.b2c.length > 0 ? product.b2c[0].price : 0);
+              const displayGstRate = product.gstRate || product.gstPercent || 0;
+              const displayPriceWithGst = displayPrice + (displayPrice * displayGstRate) / 100;
+              return (
+                <tr key={product._id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.02)' }} className="table-row-hover">
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+                        <img 
+                          src={getImageUrl(product.imageUrl)} 
+                          alt="" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          onError={(e) => e.target.src = 'https://via.placeholder.com/48'}
+                        />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '15px' }}>{product.name}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>SKU: {product.sku || 'N/A'}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '15px' }}>{product.name}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>SKU: {product.sku || 'N/A'}</div>
+                  </td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 500 }}>{product.categoryId?.name || product.category || 'N/A'}</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>{product.subCategoryId?.name || product.subCategory || ''}</div>
+                  </td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>₹{displayPrice}</div>
+                    <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600 }}>
+                      ₹{displayPriceWithGst.toFixed(2)} ({displayGstRate}% GST)
                     </div>
-                  </div>
-                </td>
-                <td style={{ padding: '16px 24px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 500 }}>{product.categoryId?.name || product.category || 'N/A'}</div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{product.subCategoryId?.name || product.subCategory || ''}</div>
-                </td>
-                <td style={{ padding: '16px 24px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 600 }}>₹{product.price}</div>
-                  <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600 }}>
-                    ₹{(product.price + (product.price * (product.gstRate || 0)) / 100).toFixed(2)} ({product.gstRate || 0}% GST)
-                  </div>
-                </td>
-                <td style={{ padding: '16px 24px', fontSize: '14px' }}>
-                  <span style={{ color: product.stock < 10 ? '#ef4444' : '#22c55e', fontWeight: 500 }}>
-                    {product.stock} {product.unit || 'pcs'}
-                  </span>
-                </td>
-                <td style={{ padding: '16px 24px' }}>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                      onClick={() => setSelectedProduct(product)}
-                      title="View Details"
-                      style={{ padding: '8px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.05)', border: 'none', color: '#6366f1', cursor: 'pointer' }}
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button 
-                      onClick={() => navigate(`/products/edit/${product._id}`)}
-                      title="Edit Product"
-                      style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(product._id)}
-                      title="Delete Product"
-                      style={{ padding: '8px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.05)', border: 'none', color: '#ef4444', cursor: 'pointer' }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td style={{ padding: '16px 24px', fontSize: '14px' }}>
+                    <span style={{ color: product.stock < 10 ? '#ef4444' : '#22c55e', fontWeight: 500 }}>
+                      {product.stock} {product.unit || 'pcs'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={() => setSelectedProduct(product)}
+                        title="View Details"
+                        style={{ padding: '8px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.05)', border: 'none', color: '#6366f1', cursor: 'pointer' }}
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button 
+                        onClick={() => navigate(`/products/edit/${product._id}`)}
+                        title="Edit Product"
+                        style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(product._id)}
+                        title="Delete Product"
+                        style={{ padding: '8px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.05)', border: 'none', color: '#ef4444', cursor: 'pointer' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -442,34 +449,39 @@ const Products = () => {
           <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
             No products found.
           </div>
-        ) : filteredProducts.map((product) => (
-          <div key={product._id} className="glass-card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', gap: '16px' }}>
-            <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden', flexShrink: 0 }}>
-              <img 
-                src={getImageUrl(product.imageUrl)} 
-                alt="" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-              />
+        ) : filteredProducts.map((product) => {
+          const displayPrice = product.price || (product.b2c && product.b2c.length > 0 ? product.b2c[0].price : 0);
+          const displayGstRate = product.gstRate || product.gstPercent || 0;
+          const displayPriceWithGst = displayPrice + (displayPrice * displayGstRate) / 100;
+          return (
+            <div key={product._id} className="glass-card" style={{ padding: '16px', borderRadius: '20px', display: 'flex', gap: '16px' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', overflow: 'hidden', flexShrink: 0 }}>
+                <img 
+                  src={getImageUrl(product.imageUrl)} 
+                  alt="" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '4px' }}>{product.name}</div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '6px' }}>{product.categoryId?.name}</div>
+                <div style={{ marginBottom: '8px' }}>
+                  <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>₹{displayPrice}</span>
+                  <span style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginLeft: '8px' }}>
+                    ₹{displayPriceWithGst.toFixed(2)} ({displayGstRate}%)
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '12px', color: product.stock < 10 ? '#ef4444' : '#94a3b8' }}>{product.stock} units left</div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                  <button onClick={() => setSelectedProduct(product)} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: '#6366f1', fontSize: '12px', fontWeight: 600 }}>View</button>
+                  <button onClick={() => navigate(`/products/edit/${product._id}`)} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Edit</button>
+                </div>
+              </div>
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '4px' }}>{product.name}</div>
-              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '6px' }}>{product.categoryId?.name}</div>
-              <div style={{ marginBottom: '8px' }}>
-                <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>₹{product.price}</span>
-                <span style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginLeft: '8px' }}>
-                  ₹{(product.price + (product.price * (product.gstRate || 0)) / 100).toFixed(2)} ({product.gstRate || 0}%)
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: '12px', color: product.stock < 10 ? '#ef4444' : '#94a3b8' }}>{product.stock} units left</div>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                <button onClick={() => setSelectedProduct(product)} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: '#6366f1', fontSize: '12px', fontWeight: 600 }}>View</button>
-                <button onClick={() => navigate(`/products/edit/${product._id}`)} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>Edit</button>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <ProductDetailModal 

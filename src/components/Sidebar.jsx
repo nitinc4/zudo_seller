@@ -12,7 +12,8 @@ import {
   Moon,
   FileSpreadsheet,
   RotateCcw,
-  Rss
+  Rss,
+  FileText
 } from 'lucide-react';
 import { useTheme } from '../utils/ThemeContext';
 
@@ -155,6 +156,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           <SidebarItem to="/feed-upload" icon={Rss} label="Feed Upload" />
           <SidebarItem to="/orders" icon={ShoppingBag} label="Orders" />
           <SidebarItem to="/returns" icon={RotateCcw} label="Returns" />
+          <SidebarItem to="/invoices" icon={FileText} label="Invoices" />
           <SidebarItem to="/pickups" icon={Truck} label="Pickups" />
           <SidebarItem to="/settings" icon={Settings} label="Profile Settings" />
           

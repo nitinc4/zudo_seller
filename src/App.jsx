@@ -14,6 +14,7 @@ import BulkUpload from './pages/BulkUpload';
 import Returns from './pages/Returns';
 import VerificationPending from './pages/VerificationPending';
 import FeedUpload from './pages/FeedUpload';
+import Invoices from './pages/Invoices';
 
 import { ThemeProvider } from './utils/ThemeContext';
 
@@ -129,6 +130,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FeedUpload />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/invoices" 
+          element={
+            <ProtectedRoute>
+              <Invoices />
             </ProtectedRoute>
           } 
         />
